@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <h1>AKILIMO Dashboard</h1>
+    
+    <div class="card">
+        <div class="card-header">
+            Data Synchronization
+            <button id="syncButton" class="btn btn-primary float-right">
+                Sync Data
+            </button>
+        </div>
+        <div class="card-body">
+            Last sync: {{ last_sync|default:"Never" }}
+        </div>
+    </div>
+
+    <!-- Add your dashboard widgets here -->
+</div>
+
+<script>
+document.getElementById('syncButton').addEventListener('click', function() {
+    fetch('/trigger-sync/', {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken')
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            alert('Sync completed successfully');
+            location.reload();
+        } else {
+            alert('Sync failed: ' + data.error);
+        }
+    });
+});
+</script>
+{% endblock %}

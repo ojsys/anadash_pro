@@ -1,0 +1,59 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block content %}
+<div class="module">
+    <h2>Sync Monitoring Dashboard</h2>
+    
+    <!-- Summary Cards -->
+    <div style="display: flex; gap: 20px; margin-bottom: 20px;">
+        <div class="card">
+            <h3>Total Syncs</h3>
+            <p>{{ sync_stats.total_syncs }}</p>
+        </div>
+        <div class="card">
+            <h3>Pending</h3>
+            <p>{{ sync_stats.pending }}</p>
+        </div>
+        <div class="card">
+            <h3>In Progress</h3>
+            <p>{{ sync_stats.in_progress }}</p>
+        </div>
+        <div class="card">
+            <h3>Completed</h3>
+            <p>{{ sync_stats.completed }}</p>
+        </div>
+        <div class="card">
+            <h3>Failed</h3>
+            <p>{{ sync_stats.failed }}</p>
+        </div>
+    </div>
+
+    <!-- Latest Sync Status -->
+    <h3>Latest Sync Status by Form Type</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Form Type</th>
+                <th>Partner</th>
+                <th>Status</th>
+                <th>Records Processed</th>
+                <th>Started At</th>
+                <th>Completed At</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for form_type, sync in latest_syncs.items %}
+            <tr>
+                <td>{{ form_type }}</td>
+                <td>{{ sync.partner.name }}</td>
+                <td>{{ sync.get_status_display }}</td>
+                <td>{{ sync.records_processed }}</td>
+                <td>{{ sync.started_at }}</td>
+                <td>{{ sync.completed_at|default:"-" }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
