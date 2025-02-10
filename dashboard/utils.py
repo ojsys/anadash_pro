@@ -14,3 +14,32 @@ def process_participant_data(participant_data):
         processed_data.append(participant)
     
     return processed_data
+
+##############################
+def process_participant_groups(event_data):
+    """Process participant group data from different ODK forms"""
+    groups = []
+    
+    # Handle AKILIMO events format
+    if 'participantRepeat' in event_data:
+        for group in event_data['participantRepeat']:
+            groups.append({
+                'participant_type': group.get('participantRepeat/participant', ''),
+                'male_count': int(group.get('participantRepeat/participant_male', 0)),
+                'female_count': int(group.get('participantRepeat/participant_female', 0))
+            })
+            
+    # Handle dissemination events format
+    elif 'participantDetails' in event_data:
+        for group in event_data['participantDetails']:
+            groups.append({
+                'participant_type': group.get('participantDetails/participant', ''),
+                'male_count': int(group.get('participantDetails/participant_male', 0)),
+                'female_count': int(group.get('participantDetails/participant_female', 0))
+            })
+            
+    return groups
+
+
+##################
+
