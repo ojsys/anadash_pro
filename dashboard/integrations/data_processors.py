@@ -365,3 +365,47 @@ class ScalingChecklistProcessor(DataValidator):
         except Exception as e:
             logger.error(f"Error processing checklist {data.get('_id')}: {str(e)}")
             raise
+
+
+class PartnerProcessor(DataValidator):
+    def process(self, data: dict):
+        """Process partner data from ODK"""
+        try:
+            # Extract location data if present
+            location_data = data.get('location', {})
+            location = None
+            if location_data:
+                location, _ = Location.objects.get_or_create(
+                    latitude=location_data.get('latitude'),
+                    longitude=location_data.get('longitude'),
+                    defaults={
+                        'country': data.get('country'),
+                        'region': location_data.get('region'),
+                        'district': location_data.get('district')
+                    }
+                )
+
+            # Process partner data
+            partner_data = {
+                'name': data.get('name'),
+                'country': data.get('country'),
+                'organization_type': data.get('org_type'),
+                'contact_person': data.get('contact_person'),
+                'contact_email': data.get('contact_email'),
+                'contact_phone': data.get('contact_phone'),
+                'is_active': data.get('is_active', True),
+                'location': location,
+                'last_sync': timezone.now()
+            }
+
+            # Update or create partner
+            partner, created = Partner.objects.update_or_create(
+                odk_id=data.get('_id'),
+                defaults=partner_data
+            )
+
+            return partner
+
+        except Exception as e:
+            logger.error(f"Error processing partner data: {str(e)}")
+            raise
