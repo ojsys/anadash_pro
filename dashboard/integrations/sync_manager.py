@@ -11,7 +11,7 @@ from .odk_client import ODKAPIClient
 from .data_processors import (
     EventProcessor, ParticipantProcessor, 
     ExtensionAgentProcessor, FarmerProcessor,
-    ScalingChecklistProcessor
+    ScalingChecklistProcessor, PartnerProcessor
 )
 
 logger = logging.getLogger(__name__)
@@ -49,6 +49,7 @@ class DataSyncManager:
         self._start_sync_log('pull')
         
         sync_results = {
+            'partners': 0,
             'events': 0,
             'participants': 0,
             'extension_agents': 0,
@@ -58,6 +59,19 @@ class DataSyncManager:
         }
 
         try:
+            # Sync Partners first
+            partners_data = self.api_client.get_form_data(
+                self.api_client.FORM_IDS['partners'],
+                self.partner.last_sync
+            )
+            processor = PartnerProcessor(self.partner)
+            for partner_data in partners_data:
+                try:
+                    processor.process(partner_data)
+                    sync_results['partners'] += 1
+                except Exception as e:
+                    sync_results['errors'].append(f"Partner sync error: {str(e)}")
+
             # Sync Events
             events_data = self.api_client.get_form_data(
                 self.api_client.FORM_IDS['events'],
@@ -84,8 +98,46 @@ class DataSyncManager:
                 except Exception as e:
                     sync_results['errors'].append(f"Participant sync error: {str(e)}")
 
-            # ... Similar processes for other form types
+            # Sync Extension Agents
+            agents_data = self.api_client.get_form_data(
+                self.api_client.FORM_IDS['extension_agents'],
+                self.partner.last_sync
+            )
+            processor = ExtensionAgentProcessor(self.partner)
+            for agent_data in agents_data:
+                try:
+                    processor.process(agent_data)
+                    sync_results['extension_agents'] += 1
+                except Exception as e:
+                    sync_results['errors'].append(f"Extension agent sync error: {str(e)}")
 
+            # Sync Farmers
+            farmers_data = self.api_client.get_form_data(
+                self.api_client.FORM_IDS['farmers'],
+                self.partner.last_sync
+            )
+            processor = FarmerProcessor(self.partner)
+            for farmer_data in farmers_data:
+                try:
+                    processor.process(farmer_data)
+                    sync_results['farmers'] += 1
+                except Exception as e:
+                    sync_results['errors'].append(f"Farmer sync error: {str(e)}")
+
+            # Sync Scaling Checklists
+            checklist_data = self.api_client.get_form_data(
+                self.api_client.FORM_IDS['checklists'],
+                self.partner.last_sync
+            )
+            processor = ScalingChecklistProcessor(self.partner)
+            for checklist_item in checklist_data:
+                try:
+                    processor.process(checklist_item)
+                    sync_results['checklists'] += 1
+                except Exception as e:
+                    sync_results['errors'].append(f"Checklist sync error: {str(e)}")
+
+            # Update last sync time and save results
             self.partner.last_sync = timezone.now()
             self.partner.save()
 
@@ -172,3 +224,51 @@ class DataSyncManager:
             sync_status.completed_at = timezone.now()
             sync_status.save()
             raise
+
+    def sync_partners(self):
+        sync_status = DataSyncStatus.objects.create(
+            partner=self.partner,
+            form_type='partners',
+            status='in_progress'
+        )
+        
+        try:
+            partners_data = self.api_client.get_form_data(
+                self.api_client.FORM_IDS['partners'],
+                self.partner.last_sync
+            )
+            
+            records_processed = 0
+            records_failed = 0
+            
+            for partner_data in partners_data:
+                try:
+                    # Process partner data using the processor
+                    processor = PartnerProcessor(self.partner)
+                    processor.process(partner_data)
+                    records_processed += 1
+                except Exception as e:
+                    records_failed += 1
+                    logger.error(f"Error processing partner: {str(e)}")
+            
+            sync_status.status = 'completed'
+            sync_status.records_processed = records_processed
+            sync_status.records_failed = records_failed
+            sync_status.completed_at = timezone.now()
+            sync_status.save()
+            
+            return {
+                'processed': records_processed,
+                'failed': records_failed,
+                'status': 'completed'
+            }
+            
+        except Exception as e:
+            sync_status.status = 'failed'
+            sync_status.error_message = str(e)
+            sync_status.completed_at = timezone.now()
+            sync_status.save()
+            logger.error(f"Partner sync failed: {str(e)}")
+            raise
+
+    

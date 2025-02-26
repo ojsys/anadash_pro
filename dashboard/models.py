@@ -45,6 +45,18 @@ class Partner(models.Model):
     def __str__(self):
         return self.name
 
+    def to_odk_format(self) -> Dict:
+        return {
+            'name': self.name,
+            'country': self.country,
+            'organization_type': self.organization_type,
+            'contact_person': self.contact_person,
+            'contact_email': self.contact_email,
+            'contact_phone': self.contact_phone,
+            'is_active': self.is_active,
+            'location': self.location.to_odk_format() if self.location else None
+        }
+
 class Location(models.Model):
     hasc1 = models.CharField(max_length=10)
     hasc1_name = models.CharField(max_length=255)
@@ -59,6 +71,15 @@ class Location(models.Model):
 
     def __str__(self):
         return f"{self.city}, {self.hasc2}"
+
+    def to_odk_format(self) -> Dict:
+        return {
+            'latitude': self.latitude,
+            'longitude': self.longitude,
+            'country': self.country,
+            'region': self.region,
+            'district': self.district
+        }
 
 class AkilimoEvent(models.Model):
     EVENT_TYPES = [
@@ -196,6 +217,18 @@ class Event(models.Model):
     def __str__(self):
         return self.title
 
+    def to_odk_format(self) -> Dict:
+        return {
+            'title': self.title,
+            'event_type': self.event_type,
+            'format': self.format,
+            'venue': self.venue,
+            'start_date': self.start_date.isoformat(),
+            'end_date': self.end_date.isoformat(),
+            'topics': self.topics,
+            'location': self.location.to_odk_format() if self.location else None
+        }
+
 
 class EventAttachment(models.Model):
     """Files and attachments associated with events"""
@@ -234,6 +267,17 @@ class Participant(models.Model):
     def __str__(self):
         return f"{self.first_name} {self.surname}"
 
+    def to_odk_format(self) -> Dict:
+        return {
+            'first_name': self.first_name,
+            'surname': self.surname,
+            'phone_number': self.phone_number,
+            'gender': self.gender,
+            'own_phone': self.own_phone,
+            'has_whatsapp': self.has_whatsapp,
+            'event_id': str(self.event.id) if self.event else None
+        }
+
 
 class ParticipantGroup(models.Model):
     """Track aggregated participant counts by type"""
@@ -269,6 +313,17 @@ class Farmer(models.Model):
     def __str__(self):
         return f"Farmer: {self.participant}"
 
+    def to_odk_format(self) -> Dict:
+        return {
+            'participant_id': str(self.participant.id),
+            'farm_area': self.farm_area,
+            'area_unit': self.area_unit,
+            'crops': self.crops,
+            'registration_date': self.registration_date.isoformat(),
+            'registration_source': self.registration_source,
+            'location': self.location.to_odk_format() if self.location else None
+        }
+
 class ExtensionAgent(models.Model):
     participant = models.OneToOneField(Participant, on_delete=models.CASCADE)
     designation = models.CharField(max_length=255)
@@ -292,6 +347,15 @@ class ExtensionAgent(models.Model):
     def __str__(self):
         return f"EA: {self.participant}"
 
+    def to_odk_format(self) -> Dict:
+        return {
+            'participant_id': str(self.participant.id),
+            'organization': self.organization,
+            'education_level': self.education_level,
+            'is_akilimo_certified': self.is_akilimo_certified,
+            'number_of_farmers': self.number_of_farmers
+        }
+
 class ScalingChecklist(models.Model):
     partner = models.ForeignKey(Partner, on_delete=models.CASCADE)
     submission_date = models.DateTimeField()
@@ -313,6 +377,15 @@ class ScalingChecklist(models.Model):
 
     def __str__(self):
         return f"Checklist: {self.partner.name} ({self.submission_date})"
+
+    def to_odk_format(self) -> Dict:
+        return {
+            'main_business': self.main_business,
+            'core_business': self.core_business,
+            'has_mel_system': self.has_mel_system,
+            'system_type': self.system_type,
+            'submission_date': self.submission_date.isoformat()
+        }
 
 class DataSyncLog(models.Model):
     """Track data synchronization attempts"""
