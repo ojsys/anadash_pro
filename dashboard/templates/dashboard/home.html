@@ -1,41 +1,128 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block content %}
-<div class="container">
-    <h1>AKILIMO Dashboard</h1>
+<div class="container mt-4">
+    <h1 class="mb-4">AKILIMO Dashboard</h1>
     
-    <div class="card">
-        <div class="card-header">
-            Data Synchronization
-            <button id="syncButton" class="btn btn-primary float-right">
-                Sync Data
-            </button>
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Data Synchronization</h5>
+                    <button id="syncButton" class="btn btn-primary">
+                        <i class="fas fa-sync-alt"></i> Sync Data
+                    </button>
+                </div>
+                <div class="card-body">
+                    <div id="syncStatus" class="alert alert-info d-none"></div>
+                    <p><strong>Last Sync:</strong> {{ last_sync|date:"F j, Y, P" |default:"Never" }}</p>
+                    <p><strong>Partner:</strong> {{ partner.name|default:"Not configured" }}</p>
+                </div>
+            </div>
         </div>
-        <div class="card-body">
-            Last sync: {{ last_sync|default:"Never" }}
+
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Sync Statistics</h5>
+                </div>
+                <div class="card-body">
+                    <div id="syncStats">
+                        <!-- Stats will be populated via JavaScript -->
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
-
-    <!-- Add your dashboard widgets here -->
 </div>
 
 <script>
 document.getElementById('syncButton').addEventListener('click', function() {
+    const button = this;
+    const statusDiv = document.getElementById('syncStatus');
+    
+    // Disable button and show loading state
+    button.disabled = true;
+    button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Syncing...';
+    statusDiv.className = 'alert alert-info';
+    statusDiv.textContent = 'Synchronization in progress...';
+    statusDiv.classList.remove('d-none');
+
     fetch('/trigger-sync/', {
         method: 'POST',
         headers: {
-            'X-CSRFToken': getCookie('csrftoken')
+            'X-CSRFToken': getCookie('csrftoken'),
+            'Content-Type': 'application/json'
         }
     })
     .then(response => response.json())
     .then(data => {
         if (data.status === 'success') {
-            alert('Sync completed successfully');
-            location.reload();
+            statusDiv.className = 'alert alert-success';
+            statusDiv.textContent = 'Synchronization completed successfully!';
+            
+            // Update stats if available
+            if (data.results) {
+                updateSyncStats(data.results);
+            }
+            
+            setTimeout(() => {
+                location.reload();
+            }, 2000);
         } else {
-            alert('Sync failed: ' + data.error);
+            statusDiv.className = 'alert alert-danger';
+            statusDiv.textContent = 'Sync failed: ' + data.error;
         }
+    })
+    .catch(error => {
+        statusDiv.className = 'alert alert-danger';
+        statusDiv.textContent = 'Error: ' + error.message;
+    })
+    .finally(() => {
+        button.disabled = false;
+        button.innerHTML = '<i class="fas fa-sync-alt"></i> Sync Data';
     });
 });
+
+function updateSyncStats(results) {
+    const statsDiv = document.getElementById('syncStats');
+    let html = '<ul class="list-group">';
+    
+    for (const [key, value] of Object.entries(results)) {
+        if (key !== 'errors') {
+            html += `
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    ${key.replace('_', ' ').toUpperCase()}
+                    <span class="badge bg-primary rounded-pill">${value}</span>
+                </li>`;
+        }
+    }
+    
+    if (results.errors && results.errors.length > 0) {
+        html += `
+            <li class="list-group-item list-group-item-danger">
+                Errors: ${results.errors.length}
+            </li>`;
+    }
+    
+    html += '</ul>';
+    statsDiv.innerHTML = html;
+}
+
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
 </script>
 {% endblock %}
