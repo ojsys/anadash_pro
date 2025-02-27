@@ -1,10 +1,69 @@
-# dashboard/admin.py
 from django.contrib import admin
+from django.urls import path
+from django.shortcuts import render
+from django.http import JsonResponse
+from .utils.ona_client import ONAClient
 from .models import (
     Partner, Location, Event, EventAttachment, Participant,
     ParticipantGroup, Farmer, ExtensionAgent, ScalingChecklist,
-    DataSyncLog, DataSyncStatus
+    DataSyncLog, DataSyncStatus, SiteSettings, UserProfile
 )
+
+
+@admin.register(SiteSettings)
+class SiteSettingsAdmin(admin.ModelAdmin):
+    list_display = ['site_name', 'updated_at']
+    
+    def has_add_permission(self, request):
+        return not SiteSettings.objects.exists()
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+
+@admin.register(DataSyncLog)
+class DataSyncLogAdmin(admin.ModelAdmin):
+    list_display = ['start_time', 'sync_type', 'status', 'records_processed', 'end_time']
+    list_filter = ['sync_type', 'status', 'start_time']
+    search_fields = ['errors']
+    readonly_fields = ['start_time', 'end_time', 'records_processed', 'errors']
+
+    def get_urls(self):
+        urls = super().get_urls()
+        custom_urls = [
+            path('sync-dashboard/', self.admin_site.admin_view(self.sync_dashboard_view), name='sync-dashboard'),
+            path('trigger-ona-sync/', self.admin_site.admin_view(self.trigger_ona_sync), name='trigger-ona-sync'),
+        ]
+        return custom_urls + urls
+
+    def sync_dashboard_view(self, request):
+        context = {
+            'title': 'Data Synchronization Dashboard',
+            'sync_logs': DataSyncLog.objects.all().order_by('-start_time')[:10],
+            'has_permission': True,
+            'opts': self.model._meta,
+        }
+        return render(request, 'admin/dashboard/sync_dashboard.html', context)
+
+    def trigger_ona_sync(self, request):
+        try:
+            client = ONAClient()
+            events = client.fetch_dissemination_events()
+            
+            return JsonResponse({
+                'status': 'success',
+                'message': f'Successfully fetched {len(events)} events',
+                'event_count': len(events)
+            })
+        except Exception as e:
+            return JsonResponse({
+                'status': 'error',
+                'message': str(e)
+            }, status=500)
+
+
+
+
 
 @admin.register(Partner)
 class PartnerAdmin(admin.ModelAdmin):
@@ -80,17 +139,7 @@ class ScalingChecklistAdmin(admin.ModelAdmin):
     search_fields = ('partner__name', 'main_business')
     date_hierarchy = 'submission_date'
 
-@admin.register(DataSyncLog)
-class DataSyncLogAdmin(admin.ModelAdmin):
-    list_display = ('partner', 'sync_type', 'start_time', 'end_time', 'status', 'records_processed')
-    list_filter = ('sync_type', 'status', 'partner')
-    search_fields = ('partner__name',)
-    readonly_fields = ('start_time', 'end_time')
-    date_hierarchy = 'start_time'
 
-    def has_add_permission(self, request):
-        return False  # Prevent manual creation of sync logs
-    
 
 
 @admin.register(DataSyncStatus)
@@ -145,3 +194,19 @@ class SyncMonitoringAdmin(admin.ModelAdmin):
         extra_context['latest_syncs'] = latest_syncs
         
         return super().changelist_view(request, extra_context)
+
+
+
+@admin.register(UserProfile)
+class UserProfileAdmin(admin.ModelAdmin):
+    list_display = ['user', 'partner', 'is_profile_complete', 'is_profile_locked']
+    list_filter = ['is_profile_locked', 'is_profile_complete']
+    search_fields = ['user__email', 'user__first_name', 'user__last_name']
+    actions = ['unlock_profiles']
+
+    def unlock_profiles(self, request, queryset):
+        queryset.update(is_profile_locked=False)
+        self.message_user(request, f"Successfully unlocked {queryset.count()} profiles.")
+    unlock_profiles.short_description = "Unlock selected profiles"
+
+    

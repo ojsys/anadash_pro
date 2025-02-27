@@ -2,6 +2,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
+from typing import Dict
 import json
 
 class ListField(models.TextField):
@@ -32,9 +33,10 @@ class ListField(models.TextField):
             return '[]'
         return json.dumps(value)
 
+
+
 class Partner(models.Model):
     name = models.CharField(max_length=255)
-    api_key = models.CharField(max_length=255)
     country = models.CharField(max_length=2)
     last_sync = models.DateTimeField(null=True)
     is_active = models.BooleanField(default=True)
@@ -196,7 +198,7 @@ class Event(models.Model):
         ('hybrid', 'Hybrid')
     ]
 
-    partner = models.CharField(max_length=100, blank=True, null=True)
+    partner = models.ForeignKey(Partner, on_delete=models.CASCADE, null=True)
     location = models.ForeignKey(Location, on_delete=models.CASCADE)
     title = models.CharField(max_length=255)
     title_full = models.TextField(null=True, blank=True)
@@ -388,27 +390,19 @@ class ScalingChecklist(models.Model):
         }
 
 class DataSyncLog(models.Model):
-    """Track data synchronization attempts"""
-    partner = models.CharField(max_length=255)  
-    sync_type = models.CharField(max_length=20, choices=[
-        ('pull', 'Pull from ODK'),
-        ('push', 'Push to ODK')
-    ])
+    partner = models.ForeignKey(Partner, on_delete=models.CASCADE)
+    sync_type = models.CharField(max_length=50)  # 'pull' or 'push'
     start_time = models.DateTimeField()
     end_time = models.DateTimeField(null=True)
-    status = models.CharField(max_length=20, choices=[
-        ('success', 'Success'),
-        ('partial', 'Partial Success'),
-        ('failed', 'Failed')
-    ])
+    status = models.CharField(max_length=20)  # 'success', 'failed', 'partial'
     records_processed = models.IntegerField(default=0)
-    errors = models.TextField(blank=True)
-
-    def __str__(self):
-        return f"{self.partner} - {self.sync_type} - {self.start_time}"
+    errors = models.TextField(blank=True, null=True)
 
     class Meta:
         ordering = ['-start_time']
+
+    def __str__(self):
+        return f"{self.partner} - {self.sync_type} - {self.start_time}"
 
 
 class DataSyncStatus(models.Model):
@@ -433,3 +427,38 @@ class DataSyncStatus(models.Model):
 
     def __str__(self):
         return f"{self.partner.name} - {self.form_type} - {self.status}"
+
+
+###### User Profile Update ###########
+
+class UserProfile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
+    partner = models.ForeignKey(Partner, on_delete=models.SET_NULL, null=True)
+    phone_number = models.CharField(max_length=20, blank=True)
+    position = models.CharField(max_length=100, blank=True)
+    is_profile_complete = models.BooleanField(default=False)
+    is_profile_locked = models.BooleanField(default=False)  # New field
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.user.email} - {self.partner.name if self.partner else 'No Partner'}"
+
+
+class SiteSettings(models.Model):
+    logo = models.ImageField(upload_to='site/', help_text="Site logo")
+    favicon = models.ImageField(upload_to='site/', help_text="Site favicon")
+    site_name = models.CharField(max_length=100, default="AKILIMO")
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = 'Site Settings'
+        verbose_name_plural = 'Site Settings'
+
+    def __str__(self):
+        return "Site Settings"
+
+    def save(self, *args, **kwargs):
+        if SiteSettings.objects.exists() and not self.pk:
+            raise ValidationError('Only one site settings instance is allowed')
+        return super().save(*args, **kwargs)

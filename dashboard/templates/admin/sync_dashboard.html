@@ -1,0 +1,65 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block content %}
+<div class="module">
+    <h2>Data Synchronization Controls</h2>
+    
+    <div class="submit-row" style="margin: 20px 0;">
+        <button id="syncButton" class="default" style="margin-right: 15px;">
+            Sync ONA Data
+        </button>
+        <span id="syncStatus" style="display: none;"></span>
+    </div>
+
+    <h3>Recent Sync Logs</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Start Time</th>
+                <th>Type</th>
+                <th>Status</th>
+                <th>Records</th>
+                <th>Duration</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for log in sync_logs %}
+            <tr>
+                <td>{{ log.start_time }}</td>
+                <td>{{ log.sync_type }}</td>
+                <td>{{ log.status }}</td>
+                <td>{{ log.records_processed }}</td>
+                <td>{{ log.end_time|timeuntil:log.start_time }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<script>
+document.getElementById('syncButton').addEventListener('click', function() {
+    const button = this;
+    const status = document.getElementById('syncStatus');
+    
+    button.disabled = true;
+    status.textContent = 'Syncing...';
+    status.style.display = 'inline';
+    
+    fetch('{% url "admin:trigger-ona-sync" %}')
+        .then(response => response.json())
+        .then(data => {
+            status.textContent = data.message;
+            setTimeout(() => {
+                window.location.reload();
+            }, 2000);
+        })
+        .catch(error => {
+            status.textContent = 'Error: ' + error;
+        })
+        .finally(() => {
+            button.disabled = false;
+        });
+});
+</script>
+{% endblock %}
