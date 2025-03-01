@@ -4,10 +4,14 @@ from django.contrib.auth.views import LoginView
 from django.urls import reverse_lazy
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
+from django.db.models import Count, Sum, Q
+from django.db.models.functions import TruncMonth
+from datetime import datetime, timedelta
 from .integrations.sync_manager import DataSyncManager
 from django.contrib import messages
 from .forms import UserRegistrationForm, UserProfileForm
-from .models import UserProfile
+from .models import (UserProfile, AkilimoEvent, Participant, ParticipantGroup, Farmer, ExtensionAgent, 
+                    ScalingChecklist, Location, DataSyncLog, DataSyncStatus)
 
 
 
@@ -124,25 +128,82 @@ def user_logout(request):
 
 
 
-@login_required
-def dashboard_home(request):
-    partner = request.user.partners.first()
+def dashboard(request):
+    # Event Statistics
+    total_events = AkilimoEvent.objects.count()
+    events_by_type = AkilimoEvent.objects.values('event_type').annotate(count=Count('id'))
+    events_by_month = AkilimoEvent.objects.annotate(
+        month=TruncMonth('event_date')
+    ).values('month').annotate(count=Count('id')).order_by('month')
+
+    # Participant Statistics
+    total_participants = Participant.objects.count()
+    gender_distribution = Participant.objects.values('gender').annotate(count=Count('id'))
+    
+    # Get farmer data from participants
+    farmers = Participant.objects.filter(farmer__isnull=False)
+    total_farmers = farmers.count()
+    total_farm_area = farmers.aggregate(total=Sum('farmer__farm_area'))['total'] or 0
+    
+    # Get crops distribution from farmer data
+    crops_distribution = {}
+    for farmer in farmers:
+        for crop in farmer.farmer.crops:
+            if crop:  # Check if crop is not empty
+                crops_distribution[crop] = crops_distribution.get(crop, 0) + 1
+
+    # Partner Statistics
+    partner_events = Participant.objects.values('partner__name').annotate(
+        event_count=Count('event', distinct=True)
+    ).order_by('-event_count')
+    
     context = {
-        'partner': partner,
-        'last_sync': partner.last_sync if partner else None
+        'total_events': total_events,
+        'events_by_type': events_by_type,
+        'events_by_month': events_by_month,
+        'total_participants': total_participants,
+        'gender_distribution': gender_distribution,
+        'total_farmers': total_farmers,
+        'total_farm_area': total_farm_area,
+        'crops_distribution': crops_distribution,
+        'partner_events': partner_events,
     }
+    
     return render(request, 'dashboard/home.html', context)
 
 
 
 @login_required
 def events_list(request):
-    return render(request, 'dashboard/events.html')
+    partner = request.user.profile.partner
+    events = Event.objects.filter(partner=partner).order_by('-start_date')
+    
+    context = {
+        'events': events,
+        'partner': partner
+    }
+    return render(request, 'dashboard/events.html', context)
 
 @login_required
 def farmers_list(request):
-    return render(request, 'dashboard/farmers.html')
+    partner = request.user.profile.partner
+    farmers = Farmer.objects.filter(participant__partner=partner).select_related('participant')
+    
+    context = {
+        'farmers': farmers,
+        'partner': partner
+    }
+    return render(request, 'dashboard/farmers.html', context)
 
 @login_required
 def extension_agents_list(request):
-    return render(request, 'dashboard/extension_agents.html')
+    partner = request.user.profile.partner
+    agents = ExtensionAgent.objects.filter(
+        participant__partner=partner
+    ).select_related('participant')
+    
+    context = {
+        'agents': agents,
+        'partner': partner
+    }
+    return render(request, 'dashboard/extension_agents.html', context)

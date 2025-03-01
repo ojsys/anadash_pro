@@ -98,42 +98,42 @@ class AkilimoEvent(models.Model):
     odk_id = models.CharField(max_length=50, unique=True)
     odk_uuid = models.CharField(max_length=50, unique=True)
     submission_time = models.DateTimeField()
-    submitted_by = models.CharField(max_length=255)
+    submitted_by = models.CharField(max_length=255, null=True)
 
     # Event Details
-    event_type = models.CharField(max_length=50, choices=EVENT_TYPES)
-    partner = models.CharField(max_length=255)
+    event_type = models.CharField(max_length=50, choices=EVENT_TYPES, null=True)
+    partner = models.CharField(max_length=255, null=True)
 
     # Content Details
-    title = models.CharField(max_length=255)
-    title_full = models.TextField()
+    title = models.CharField(max_length=255, null=True)
+    title_full = models.TextField(null=True, blank=True)
     format = models.CharField(max_length=20, choices=FORMAT_CHOICES)
-    topics = models.TextField()
-    use_case = models.CharField(max_length=50)
+    topics = models.TextField(null=True)
+    use_case = models.CharField(max_length=50, null=True)
     image = models.CharField(max_length=255, blank=True, null=True)
 
     # Location Details
-    city = models.CharField(max_length=255)
-    hasc1 = models.CharField(max_length=10)
-    hasc2 = models.CharField(max_length=10)
-    hasc1_name = models.CharField(max_length=50)
-    hasc2_name = models.CharField(max_length=50)
-    venue = models.CharField(max_length=255)
+    city = models.CharField(max_length=255, null=True)
+    hasc1 = models.CharField(max_length=10, null=True)
+    hasc2 = models.CharField(max_length=10, null=True)
+    hasc1_name = models.CharField(max_length=50, null=True)
+    hasc2_name = models.CharField(max_length=50, null=True)
+    venue = models.CharField(max_length=255, null=True)
     latitude = models.DecimalField(max_digits=9, decimal_places=6, null=True)
     longitude = models.DecimalField(max_digits=9, decimal_places=6, null=True)
 
     # Dates
-    event_date = models.DateField()
-    start_date = models.DateField()
-    end_date = models.DateField()
+    event_date = models.DateField(null=True)
+    start_date = models.DateField(null=True)
+    end_date = models.DateField(null=True)
 
     # Enumerator Details
-    enumerator_first_name = models.CharField(max_length=255)
-    enumerator_surname = models.CharField(max_length=255)
-    enumerator_gender = models.CharField(max_length=10)
-    enumerator_phone = models.CharField(max_length=20)
-    enumerator_organization = models.CharField(max_length=255)
-    enumerator_designation = models.CharField(max_length=100)
+    enumerator_first_name = models.CharField(max_length=255, blank=True, null=True)
+    enumerator_surname = models.CharField(max_length=255, blank=True, null=True)
+    enumerator_gender = models.CharField(max_length=10, blank=True, null=True)
+    enumerator_phone = models.CharField(max_length=20, blank=True, null=True)
+    enumerator_organization = models.CharField(max_length=255, blank=True, null=True)
+    enumerator_designation = models.CharField(max_length=100, blank=True, null=True)
 
     # Participant Details - Stored as JSON
     participantRepeat = models.JSONField(default=list)
