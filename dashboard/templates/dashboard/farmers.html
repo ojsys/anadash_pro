@@ -1,1 +1,41 @@
-farmers
+{% extends 'base.html' %}
+
+{% block title %}Farmers{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="card border-0 shadow-sm">
+        <div class="card-body">
+            <h4 class="card-title mb-4">Registered Farmers</h4>
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Gender</th>
+                            <th>Phone</th>
+                            <th>Crops</th>
+                            <th>Location</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for farmer in farmers %}
+                        <tr>
+                            <td>{{ farmer.participant.full_name }}</td>
+                            <td>{{ farmer.participant.gender }}</td>
+                            <td>{{ farmer.participant.phone_number|default:"-" }}</td>
+                            <td>{{ farmer.crops|default:"-" }}</td>
+                            <td>{{ farmer.participant.location.city }}, {{ farmer.participant.location.hasc1_name }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" class="text-center">No farmers registered yet.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

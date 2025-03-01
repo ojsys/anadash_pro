@@ -55,6 +55,7 @@ INSTALLED_APPS = [
 ONA_API_TOKEN = '81124a805f083a0dd592d691376aeed380a80619'
 ODK_API_BASE_URL = 'https://api.ona.io/api/v1'
 ODK_API_TIMEOUT = 30 # seconds
+ODK_EVENT_FORM_ID = '395361' 
 
 
 # CORS settings
@@ -164,7 +165,7 @@ STATICFILES_DIRS = [
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # Authentication Settings
 LOGIN_URL = 'dashboard:login'
-LOGIN_REDIRECT_URL = 'dashboard:home'
+LOGIN_REDIRECT_URL = 'dashboard:dashboard'
 LOGOUT_REDIRECT_URL = 'dashboard:login'
 
 

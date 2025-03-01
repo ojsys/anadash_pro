@@ -8,13 +8,12 @@
     <link rel="shortcut icon" href="{{ site_settings.favicon.url }}" type="image/x-icon">
     {% endif %}
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Box Icons -->
     <link href="https://cdn.jsdelivr.net/npm/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
-    <!-- Custom CSS -->
     <style>
         :root {
-            --primary-color: #2563eb;
+            --primary-color: #035735;
             --secondary-color: #475569;
+            --sidebar-width: 280px;
         }
         
         body {
@@ -23,18 +22,8 @@
         }
 
         .navbar {
+            margin-left: var(--sidebar-width);
             box-shadow: 0 2px 4px rgba(0,0,0,.04);
-        }
-
-        .navbar-brand {
-            font-weight: 600;
-            color: var(--primary-color);
-        }
-
-        .alert {
-            border-radius: 10px;
-            margin: 1rem;
-            box-shadow: 0 2px 4px rgba(0,0,0,.05);
         }
 
         .card {
@@ -51,17 +40,167 @@
         }
 
         .btn-primary:hover {
-            background-color: #1d4ed8;
+            background-color: #046d42;
             transform: translateY(-1px);
             transition: all 0.2s;
+        }
+
+        .sidebar {
+            position: fixed;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            z-index: 100;
+            width: var(--sidebar-width);
+            background-color: var(--primary-color);
+            transition: all 0.3s;
+        }
+
+        .sidebar-header {
+            padding: 1.5rem;
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar-sticky {
+            height: calc(100vh - 150px);
+            padding: 1rem 0;
+            overflow-x: hidden;
+            overflow-y: auto;
+        }
+
+        .sidebar .nav-link {
+            color: rgba(255, 255, 255, 0.8);
+            padding: 0.8rem 1.5rem;
+            display: flex;
+            align-items: center;
+            transition: all 0.3s;
+        }
+
+        .sidebar .nav-link:hover {
+            color: #fff;
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar .nav-link.active {
+            color: #fff;
+            background-color: rgba(255, 255, 255, 0.2);
+            border-left: 4px solid #fff;
+        }
+
+        .sidebar .nav-link i {
+            font-size: 1.4rem;
+            margin-right: 0.8rem;
+        }
+
+        .main-content {
+            margin-left: var(--sidebar-width);
+            padding: 2rem;
+            min-height: calc(100vh - 60px);
+        }
+
+        .sidebar-footer {
+            padding: 1rem 1.5rem;
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            background-color: rgba(0, 0, 0, 0.2);
+        }
+
+        .sidebar-sticky::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .sidebar-sticky::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar-sticky::-webkit-scrollbar-thumb {
+            background-color: rgba(255, 255, 255, 0.2);
+            border-radius: 3px;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            .navbar, .main-content {
+                margin-left: 0;
+            }
+            .sidebar.show {
+                transform: translateX(0);
+            }
         }
     </style>
     {% block extra_css %}{% endblock %}
 </head>
 <body>
-    <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-light bg-white">
-        <div class="container">
+    {% if user.is_authenticated and request.resolver_match.url_name not in 'login,register' %}
+    <nav class="sidebar">
+        <div class="sidebar-header">
+            {% if site_settings.logo %}
+                <img src="{{ site_settings.logo.url }}" alt="{{ site_settings.site_name }}" height="40">
+            {% else %}
+                <h4 class="text-white mb-0">AKILIMO</h4>
+            {% endif %}
+        </div>
+        <div class="sidebar-sticky">
+            <ul class="nav flex-column">
+                <li class="nav-item">
+                    <a class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}" 
+                       href="{% url 'dashboard:dashboard' %}">
+                        <i class='bx bxs-dashboard'></i>
+                        Dashboard
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if request.resolver_match.url_name == 'events' %}active{% endif %}" 
+                       href="#">
+                        <i class='bx bx-calendar-event'></i>
+                        Events
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if request.resolver_match.url_name == 'participants' %}active{% endif %}" 
+                       href="#">
+                        <i class='bx bx-group'></i>
+                        Participants
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if request.resolver_match.url_name == 'farmers' %}active{% endif %}" 
+                       href="#">
+                        <i class='bx bx-user'></i>
+                        Farmers
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if request.resolver_match.url_name == 'partners' %}active{% endif %}" 
+                       href="#">
+                        <i class='bx bx-building-house'></i>
+                        Partners
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if request.resolver_match.url_name == 'settings' %}active{% endif %}" 
+                       href="#">
+                        <i class='bx bx-cog'></i>
+                        Settings
+                    </a>
+                </li>
+            </ul>
+        </div>
+        <div class="sidebar-footer">
+            <div class="d-flex align-items-center text-white-50">
+                <i class='bx bx-user-circle fs-5 me-2'></i>
+                <small>{{ user.get_full_name }}</small>
+            </div>
+        </div>
+    </nav>
+    {% endif %}
+
+    <nav class="navbar navbar-expand-lg navbar-light bg-white py-3">
+        <div class="container-fluid">
+            {% if not user.is_authenticated or request.resolver_match.url_name in 'login,register' %}
             <a class="navbar-brand" href="/">
                 {% if site_settings.logo %}
                     <img src="{{ site_settings.logo.url }}" alt="{{ site_settings.site_name }}" height="40">
@@ -69,15 +208,13 @@
                     AKILIMO
                 {% endif %}
             </a>
+            {% endif %}
             {% if user.is_authenticated %}
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'dashboard:dashboard' %}">Dashboard</a>
-                    </li>
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
                             {{ user.get_full_name }}
@@ -94,32 +231,21 @@
         </div>
     </nav>
 
-    <!-- Messages -->
     {% if messages %}
-    <div class="container">
+    <div class="container-fluid">
         {% for message in messages %}
         <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
             {{ message }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
         {% endfor %}
     </div>
     {% endif %}
 
-    <!-- Main Content -->
-    <main class="py-4">
-        {% block content %}
-        {% endblock %}
+    <main class="main-content">
+        {% block content %}{% endblock %}
     </main>
 
-    <!-- Footer -->
-    <footer class="footer mt-auto py-3 bg-light">
-        <div class="container text-center">
-            <span class="text-muted">© {% now "Y" %} AKILIMO. All rights reserved.</span>
-        </div>
-    </footer>
-
-    <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     {% block extra_js %}{% endblock %}
 </body>

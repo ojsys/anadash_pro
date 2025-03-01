@@ -1,128 +1,262 @@
 {% extends 'base.html' %}
-{% load static %}
+
+{% block title %}Dashboard{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <h1 class="mb-4">AKILIMO Dashboard</h1>
-    
-    <div class="row">
-        <div class="col-md-6">
-            <div class="card mb-4">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0">Data Synchronization</h5>
-                    <button id="syncButton" class="btn btn-primary">
-                        <i class="fas fa-sync-alt"></i> Sync Data
-                    </button>
-                </div>
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0">Dashboard Overview</h1>
+        <div class="btn-group">
+            <button type="button" class="btn btn-outline-primary">
+                <i class='bx bx-download me-1'></i> Export
+            </button>
+            <button type="button" class="btn btn-primary">
+                <i class='bx bx-plus me-1'></i> New Event
+            </button>
+        </div>
+    </div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-md-3">
+            <div class="card">
                 <div class="card-body">
-                    <div id="syncStatus" class="alert alert-info d-none"></div>
-                    <p><strong>Last Sync:</strong> {{ last_sync|date:"F j, Y, P" |default:"Never" }}</p>
-                    <p><strong>Partner:</strong> {{ partner.name|default:"Not configured" }}</p>
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0 me-3">
+                            <i class='bx bx-calendar fs-1 text-primary'></i>
+                        </div>
+                        <div>
+                            <h6 class="card-subtitle mb-1 text-muted">Total Events</h6>
+                            <h2 class="card-title mb-0">{{ total_events }}</h2>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-
-        <div class="col-md-6">
-            <div class="card mb-4">
-                <div class="card-header">
-                    <h5 class="mb-0">Sync Statistics</h5>
-                </div>
+        <div class="col-md-3">
+            <div class="card">
                 <div class="card-body">
-                    <div id="syncStats">
-                        <!-- Stats will be populated via JavaScript -->
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0 me-3">
+                            <i class='bx bx-group fs-1 text-success'></i>
+                        </div>
+                        <div>
+                            <h6 class="card-subtitle mb-1 text-muted">Participants</h6>
+                            <h2 class="card-title mb-0">{{ total_participants }}</h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0 me-3">
+                            <i class='bx bx-user fs-1 text-info'></i>
+                        </div>
+                        <div>
+                            <h6 class="card-subtitle mb-1 text-muted">Farmers</h6>
+                            <h2 class="card-title mb-0">{{ total_farmers }}</h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0 me-3">
+                            <i class='bx bx-map fs-1 text-warning'></i>
+                        </div>
+                        <div>
+                            <h6 class="card-subtitle mb-1 text-muted">Total Area</h6>
+                            <h2 class="card-title mb-0">{{ total_farm_area|floatformat:1 }} ha</h2>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
 
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">Events Timeline</h5>
+                    <div style="height: 450px; position: relative;">
+                        <canvas id="timelineChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">Gender Distribution</h5>
+                    <div style="height: 450px; position: relative;">
+                        <canvas id="genderChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">Events by Type</h5>
+                    <div style="height: 450px; position: relative;">
+                        <canvas id="eventTypeChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">Top Crops</h5>
+                    <div style="height: 450px; position: relative;">
+                        <canvas id="cropsChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-document.getElementById('syncButton').addEventListener('click', function() {
-    const button = this;
-    const statusDiv = document.getElementById('syncStatus');
-    
-    // Disable button and show loading state
-    button.disabled = true;
-    button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Syncing...';
-    statusDiv.className = 'alert alert-info';
-    statusDiv.textContent = 'Synchronization in progress...';
-    statusDiv.classList.remove('d-none');
 
-    fetch('/trigger-sync/', {
-        method: 'POST',
-        headers: {
-            'X-CSRFToken': getCookie('csrftoken'),
-            'Content-Type': 'application/json'
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.status === 'success') {
-            statusDiv.className = 'alert alert-success';
-            statusDiv.textContent = 'Synchronization completed successfully!';
-            
-            // Update stats if available
-            if (data.results) {
-                updateSyncStats(data.results);
+    const commonOptions = {
+            responsive: true,
+            maintainAspectRatio: true,
+            layout: {
+                padding: {
+                    top: 10,
+                    bottom: 20
+                }
             }
-            
-            setTimeout(() => {
-                location.reload();
-            }, 2000);
-        } else {
-            statusDiv.className = 'alert alert-danger';
-            statusDiv.textContent = 'Sync failed: ' + data.error;
+        };
+    // Timeline Chart
+    new Chart(document.getElementById('timelineChart'), {
+            type: 'line',
+            data: {
+                labels: [{% for event in events_by_month|slice:"-6:" %}'{{ event.month|date:"F Y" }}',{% endfor %}],
+                datasets: [{
+                    label: 'Events',
+                    data: [{% for event in events_by_month|slice:"-6:" %}{{ event.count }},{% endfor %}],
+                    borderColor: '#035735',
+                    backgroundColor: 'rgba(3, 87, 53, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                ...commonOptions,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 1
+                        }
+                    }
+                }
+            }
+        });
+
+    // Gender Distribution Chart
+    new Chart(document.getElementById('genderChart'), {
+        type: 'doughnut',
+        data: {
+            labels: [{% for g in gender_distribution|slice:":3" %}'{{ g.gender|title }}',{% endfor %}],
+            datasets: [{
+                data: [{% for g in gender_distribution|slice:":3" %}{{ g.count }},{% endfor %}],
+                backgroundColor: ['#035735', '#0ea5e9', '#f59e0b']
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            ...commonOptions,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    
+                }
+            },
+
         }
-    })
-    .catch(error => {
-        statusDiv.className = 'alert alert-danger';
-        statusDiv.textContent = 'Error: ' + error.message;
-    })
-    .finally(() => {
-        button.disabled = false;
-        button.innerHTML = '<i class="fas fa-sync-alt"></i> Sync Data';
     });
-});
 
-function updateSyncStats(results) {
-    const statsDiv = document.getElementById('syncStats');
-    let html = '<ul class="list-group">';
-    
-    for (const [key, value] of Object.entries(results)) {
-        if (key !== 'errors') {
-            html += `
-                <li class="list-group-item d-flex justify-content-between align-items-center">
-                    ${key.replace('_', ' ').toUpperCase()}
-                    <span class="badge bg-primary rounded-pill">${value}</span>
-                </li>`;
-        }
-    }
-    
-    if (results.errors && results.errors.length > 0) {
-        html += `
-            <li class="list-group-item list-group-item-danger">
-                Errors: ${results.errors.length}
-            </li>`;
-    }
-    
-    html += '</ul>';
-    statsDiv.innerHTML = html;
-}
 
-function getCookie(name) {
-    let cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-        const cookies = document.cookie.split(';');
-        for (let i = 0; i < cookies.length; i++) {
-            const cookie = cookies[i].trim();
-            if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
+    // Events by Type Chart
+    new Chart(document.getElementById('eventTypeChart'), {
+        type: 'bar',
+        data: {
+            labels: [{% for event in events_by_type|slice:":5" %}'{{ event.event_type|title }}',{% endfor %}],
+            datasets: [{
+                label: 'Events',
+                data: [{% for event in events_by_type|slice:":5" %}{{ event.count }},{% endfor %}],
+                backgroundColor: '#035735'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            ...commonOptions,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 1
+                    }
+                }
             }
         }
-    }
-    return cookieValue;
-}
+    });
+
+    // Crops Distribution Chart
+    new Chart(document.getElementById('cropsChart'), {
+        type: 'pie',
+        data: {
+            labels: [{% for crop, count in crops_distribution.items|slice:":6" %}'{{ crop|title }}',{% endfor %}],
+            datasets: [{
+                data: [{% for crop, count in crops_distribution.items|slice:":6" %}{{ count }},{% endfor %}],
+                backgroundColor: [
+                    '#035735',
+                    '#0ea5e9',
+                    '#f59e0b',
+                    '#84cc16',
+                    '#8b5cf6',
+                    '#ec4899'
+                ]
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            ...commonOptions,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                }
+            }
+        }
+    });
 </script>
+{% endblock %}
 {% endblock %}
