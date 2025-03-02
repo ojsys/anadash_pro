@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load humanize %}
 
 {% block title %}Dashboard{% endblock %}
 
@@ -26,7 +27,7 @@
                         </div>
                         <div>
                             <h6 class="card-subtitle mb-1 text-muted">Total Events</h6>
-                            <h2 class="card-title mb-0">{{ total_events }}</h2>
+                            <h2 class="card-title mb-0">{{ total_events|intcomma }}</h2>
                         </div>
                     </div>
                 </div>
@@ -41,7 +42,7 @@
                         </div>
                         <div>
                             <h6 class="card-subtitle mb-1 text-muted">Participants</h6>
-                            <h2 class="card-title mb-0">{{ total_participants }}</h2>
+                            <h2 class="card-title mb-0">{{ total_participants|intcomma }}</h2>
                         </div>
                     </div>
                 </div>
@@ -52,11 +53,11 @@
                 <div class="card-body">
                     <div class="d-flex align-items-center">
                         <div class="flex-shrink-0 me-3">
-                            <i class='bx bx-user fs-1 text-info'></i>
+                            <i class='bx bx-buildings fs-1 text-info'></i>
                         </div>
                         <div>
-                            <h6 class="card-subtitle mb-1 text-muted">Farmers</h6>
-                            <h2 class="card-title mb-0">{{ total_farmers }}</h2>
+                            <h6 class="card-subtitle mb-1 text-muted">Partners</h6>
+                            <h2 class="card-title mb-0">{{ total_orgs|intcomma }}</h2>
                         </div>
                     </div>
                 </div>
@@ -71,7 +72,7 @@
                         </div>
                         <div>
                             <h6 class="card-subtitle mb-1 text-muted">Total Area</h6>
-                            <h2 class="card-title mb-0">{{ total_farm_area|floatformat:1 }} ha</h2>
+                            <h2 class="card-title mb-0">{{ total_farm_area|floatformat:1|intcomma }} ha</h2>
                         </div>
                     </div>
                 </div>
@@ -79,12 +80,127 @@
         </div>
     </div>
 
+    <!-- Farmer Demographics -->
+    <div class="row mb-4 mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title mb-4">Farmer Demographics</h5>
+                    <div class="row g-4">
+                        <div class="col-md-3">
+                            <div class="d-flex align-items-center">
+                                <div class="flex-shrink-0 me-3">
+                                    <i class='bx bx-male fs-1 text-primary'></i>
+                                </div>
+                                <div>
+                                    <h6 class="text-muted mb-1">Male Farmers</h6>
+                                    <h3 class="mb-0">{{ male_farmers|intcomma }}</h3>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="d-flex align-items-center">
+                                <div class="flex-shrink-0 me-3">
+                                    <i class='bx bx-female fs-1 text-danger'></i>
+                                </div>
+                                <div>
+                                    <h6 class="text-muted mb-1">Female Farmers</h6>
+                                    <h3 class="mb-0">{{ female_farmers|intcomma }}</h3>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="d-flex align-items-center">
+                                <div class="flex-shrink-0 me-3">
+                                    <i class='bx bx-percentage fs-1 text-success'></i>
+                                </div>
+                                <div>
+                                    <h6 class="text-muted mb-1">Female Participation</h6>
+                                    <h3 class="mb-0">{{ farmer_percentage|floatformat:1|intcomma }}%</h3>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="d-flex align-items-center">
+                                <div class="flex-shrink-0 me-3">
+                                    <i class='bx bx-group fs-1 text-warning'></i>
+                                </div>
+                                <div>
+                                    <h6 class="text-muted mb-1">Total Farmers</h6>
+                                    <h3 class="mb-0">{{ total_farmers|intcomma }}</h3>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+        <!-- Extension Agents Demographics -->
+        <div class="row mb-4 mt-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title mb-4">Extension Agents Demographics</h5>
+                        <div class="row g-4">
+                            <div class="col-md-3">
+                                <div class="d-flex align-items-center">
+                                    <div class="flex-shrink-0 me-3">
+                                        <i class='bx bx-male fs-1 text-primary'></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="text-muted mb-1">Male EAs</h6>
+                                        <h3 class="mb-0">{{ male_ea }}</h3>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="d-flex align-items-center">
+                                    <div class="flex-shrink-0 me-3">
+                                        <i class='bx bx-female fs-1 text-danger'></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="text-muted mb-1">Female EAs</h6>
+                                        <h3 class="mb-0">{{ female_ea }}</h3>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="d-flex align-items-center">
+                                    <div class="flex-shrink-0 me-3">
+                                        <i class='bx bx-percentage fs-1 text-success'></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="text-muted mb-1">Female EA Participation</h6>
+                                        <h3 class="mb-0">{{ ea_percentage|floatformat:1 }}%</h3>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="d-flex align-items-center">
+                                    <div class="flex-shrink-0 me-3">
+                                        <i class='bx bx-group fs-1 text-warning'></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="text-muted mb-1">Total EAs</h6>
+                                        <h3 class="mb-0">{{ total_ea }}</h3>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    <!-- Second Row -->
     <div class="row mb-4">
         <div class="col-md-8">
             <div class="card">
                 <div class="card-body">
                     <h5 class="card-title mb-3">Events Timeline</h5>
-                    <div style="height: 450px; position: relative;">
+                    <div style="height: 450px; position: relative; display: flex; align-items: center; justify-content: center;">
                         <canvas id="timelineChart"></canvas>
                     </div>
                 </div>
@@ -94,7 +210,7 @@
             <div class="card">
                 <div class="card-body">
                     <h5 class="card-title mb-3">Gender Distribution</h5>
-                    <div style="height: 450px; position: relative;">
+                    <div style="height: 450px; position: relative; display: flex; align-items: center; justify-content: center;">
                         <canvas id="genderChart"></canvas>
                     </div>
                 </div>
@@ -107,7 +223,7 @@
             <div class="card">
                 <div class="card-body">
                     <h5 class="card-title mb-3">Events by Type</h5>
-                    <div style="height: 450px; position: relative;">
+                    <div style="height: 450px; position: relative; display: flex; align-items: center; justify-content: center;">
                         <canvas id="eventTypeChart"></canvas>
                     </div>
                 </div>
@@ -117,13 +233,17 @@
             <div class="card">
                 <div class="card-body">
                     <h5 class="card-title mb-3">Top Crops</h5>
-                    <div style="height: 450px; position: relative;">
+                    <div style="height: 450px; position: relative; display: flex; align-items: center; justify-content: center;">
                         <canvas id="cropsChart"></canvas>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+
+
+    
+
 
 {% block extra_js %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -149,14 +269,21 @@
                     data: [{% for event in events_by_month|slice:"-6:" %}{{ event.count }},{% endfor %}],
                     borderColor: '#035735',
                     backgroundColor: 'rgba(3, 87, 53, 0.1)',
-                    tension: 0.4,
+                    tension: 0.2,
                     fill: true
                 }]
             },
             options: {
                 responsive: true,
-                maintainAspectRatio: true,
-                ...commonOptions,
+                maintainAspectRatio: false,
+                layout: {
+                    padding: {
+                        top: 10,
+                        bottom: 10,
+                        left: 10,
+                        right: 10
+                    }
+                },
                 plugins: {
                     legend: {
                         display: false

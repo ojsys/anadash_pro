@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import login, logout
 from django.contrib.auth.views import LoginView
 from django.urls import reverse_lazy
+from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.db.models import Count, Sum, Q
@@ -11,7 +12,7 @@ from .integrations.sync_manager import DataSyncManager
 from django.contrib import messages
 from .forms import UserRegistrationForm, UserProfileForm
 from .models import (UserProfile, AkilimoEvent, Participant, ParticipantGroup, Farmer, ExtensionAgent, 
-                    ScalingChecklist, Location, DataSyncLog, DataSyncStatus)
+                    ScalingChecklist, Location, DataSyncLog, DataSyncStatus, Partner)
 
 
 
@@ -136,6 +137,8 @@ def dashboard(request):
         month=TruncMonth('event_date')
     ).values('month').annotate(count=Count('id')).order_by('month')
 
+    total_orgs = Partner.objects.all().count()
+
     # Participant Statistics
     total_participants = Participant.objects.count()
     gender_distribution = Participant.objects.values('gender').annotate(count=Count('id'))
@@ -156,7 +159,41 @@ def dashboard(request):
     partner_events = Participant.objects.values('partner__name').annotate(
         event_count=Count('event', distinct=True)
     ).order_by('-event_count')
+
+    # Extract farmer statistics from participantRepeat
+    male_farmers = 0
+    female_farmers = 0
     
+    for event in AkilimoEvent.objects.all():
+        for participant in event.participantRepeat:
+            if participant.get('participantDetails/participant') == 'farmers':
+                # Convert string values to integers before adding
+                male_count = int(participant.get('participantDetails/participant_male', 0))
+                female_count = int(participant.get('participantDetails/participant_female', 0))
+                
+                male_farmers += male_count
+                female_farmers += female_count
+
+    total_farmers = male_farmers + female_farmers
+    farmer_percentage = (female_farmers / total_farmers * 100) if total_farmers > 0 else 0
+    
+    # Extract EA statistics from participantRepeat
+    male_ea = 0
+    female_ea = 0
+    
+    for event in AkilimoEvent.objects.all():
+        for participant in event.participantRepeat:
+            if participant.get('participantDetails/participant') == 'NGO_EAs':
+                male_count = int(participant.get('participantDetails/participant_male', 0))
+                female_count = int(participant.get('participantDetails/participant_female', 0))
+                
+                male_ea += male_count
+                female_ea += female_count
+
+    total_ea = male_ea + female_ea
+    ea_percentage = (female_ea / total_ea * 100) if total_ea > 0 else 0
+
+
     context = {
         'total_events': total_events,
         'events_by_type': events_by_type,
@@ -164,34 +201,57 @@ def dashboard(request):
         'total_participants': total_participants,
         'gender_distribution': gender_distribution,
         'total_farmers': total_farmers,
+        'male_farmers': male_farmers,
+        'female_farmers': female_farmers,
+        'farmer_percentage': farmer_percentage,
         'total_farm_area': total_farm_area,
         'crops_distribution': crops_distribution,
         'partner_events': partner_events,
+        'total_ea': total_ea,
+        'male_ea': male_ea,
+        'female_ea': female_ea,
+        'ea_percentage': ea_percentage,
+        'total_orgs': total_orgs,
     }
     
     return render(request, 'dashboard/home.html', context)
 
 
+def partner_farmers(request, partner_id):
+    partner = get_object_or_404(Partner, id=partner_id)
+    # Add your view logic here
+    return render(request, 'dashboard/farmers.html', {'partner': partner})
 
-@login_required
+def partner_participants(request, partner_id):
+    partner = get_object_or_404(Partner, id=partner_id)
+    # Add your view logic here
+    return render(request, 'dashboard/participants.html', {'partner': partner})
+
 def events_list(request):
-    partner = request.user.profile.partner
-    events = Event.objects.filter(partner=partner).order_by('-start_date')
+    # Get events for the current user's partner
+    try:
+        user = request.user
+        partner = UserProfile.objects.get(user=user).partner
+        events = AkilimoEvent.objects.filter(partner=partner)
+    except (AttributeError, ObjectDoesNotExist):
+        events = []
     
     context = {
-        'events': events,
-        'partner': partner
+        'events': events
     }
     return render(request, 'dashboard/events.html', context)
 
-@login_required
 def farmers_list(request):
-    partner = request.user.profile.partner
-    farmers = Farmer.objects.filter(participant__partner=partner).select_related('participant')
+    # Get farmers for the current user's partner
+    try:
+        user = request.user
+        partner = UserProfile.objects.get(user=user).partner
+        farmers = Farmer.objects.filter(partner=partner)
+    except (AttributeError, ObjectDoesNotExist):
+        farmers = []
     
     context = {
-        'farmers': farmers,
-        'partner': partner
+        'farmers': farmers
     }
     return render(request, 'dashboard/farmers.html', context)
 
