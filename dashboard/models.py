@@ -300,6 +300,7 @@ class ParticipantGroup(models.Model):
 
 class Farmer(models.Model):
     participant = models.OneToOneField(Participant, on_delete=models.CASCADE)
+    partner = models.ForeignKey(Partner, on_delete=models.CASCADE, null=True)
     farm_area = models.DecimalField(max_digits=10, decimal_places=2)
     area_unit = models.CharField(max_length=20, choices=[
         ('hectare', 'Hectare'),
@@ -325,6 +326,33 @@ class Farmer(models.Model):
             'registration_source': self.registration_source,
             'location': self.location.to_odk_format() if self.location else None
         }
+
+
+class FarmerData(models.Model):
+    partner = models.ForeignKey(Partner, on_delete=models.CASCADE, null=True)
+    firstname = models.CharField(max_length=255, null=True)
+    lastname = models.CharField(max_length=255, null=True)
+    gender = models.CharField(max_length=10, choices=[
+        ('male', 'Male'),
+        ('female', 'Female')
+    ])
+    phone_number = models.CharField(max_length=20, null=True)
+    own_phone = models.BooleanField(default=False)
+    crops = models.CharField(max_length=255, null=True)
+    crop_other = models.CharField(max_length=255, null=True)
+    farm_area = models.DecimalField(max_digits=10, decimal_places=2, null=True)
+    area_unit = models.CharField(max_length=20, choices=[
+        ('hectare', 'Hectare'),
+        ('acre', 'Acre')
+    ])
+    cassava = models.BooleanField(default=False)
+    yam = models.BooleanField(default=False)
+    maize = models.BooleanField(default=False)
+    rice = models.BooleanField(default=False)
+    sorghum = models.BooleanField(default=False)
+    
+    def __str__(self):
+        return f"{self.firstname} - {self.lastname}: {self.gender}"
 
 class ExtensionAgent(models.Model):
     participant = models.OneToOneField(Participant, on_delete=models.CASCADE)

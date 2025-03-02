@@ -136,55 +136,66 @@
 <body>
     {% if user.is_authenticated and request.resolver_match.url_name not in 'login,register' %}
     <nav class="sidebar">
-        <div class="sidebar-header">
+        <div class="sidebar-header d-flex justify-content-center">
             {% if site_settings.logo %}
-                <img src="{{ site_settings.logo.url }}" alt="{{ site_settings.site_name }}" height="40">
+                <img src="{{ site_settings.logo.url }}" alt="{{ site_settings.site_name }}" height="70">
             {% else %}
                 <h4 class="text-white mb-0">AKILIMO</h4>
             {% endif %}
         </div>
         <div class="sidebar-sticky">
             <ul class="nav flex-column">
+                <!-- Main Navigation -->
                 <li class="nav-item">
                     <a class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}" 
                        href="{% url 'dashboard:dashboard' %}">
                         <i class='bx bxs-dashboard'></i>
-                        Dashboard
+                        Overview
                     </a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link {% if request.resolver_match.url_name == 'events' %}active{% endif %}" 
-                       href="#">
-                        <i class='bx bx-calendar-event'></i>
+
+                <!-- Partner Section -->
+                
+                <li class="nav-item mt-4">
+                    <span class="d-block px-4 mb-2 text-white-50 small text-uppercase">{{ current_partner.name }}</span>
+                    <a class="nav-link" href="{% url 'dashboard:events' %}">
+                        <i class='bx bx-calendar'></i>
                         Events
                     </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link {% if request.resolver_match.url_name == 'participants' %}active{% endif %}" 
-                       href="#">
-                        <i class='bx bx-group'></i>
-                        Participants
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link {% if request.resolver_match.url_name == 'farmers' %}active{% endif %}" 
-                       href="#">
+                    <a class="nav-link" href="{% url 'dashboard:farmers' %}">
                         <i class='bx bx-user'></i>
                         Farmers
                     </a>
+                    <a class="nav-link" href="{% url 'dashboard:extension-agents' %}">
+                        <i class='bx bx-group'></i>
+                        Extension Agents
+                    </a>
                 </li>
-                <li class="nav-item">
+               
+
+                <!-- Admin Section -->
+                {% if user.is_staff %}
+                <li class="nav-item mt-4">
+                    <span class="d-block px-4 mb-2 text-white-50 small text-uppercase">Admin</span>
                     <a class="nav-link {% if request.resolver_match.url_name == 'partners' %}active{% endif %}" 
-                       href="#">
-                        <i class='bx bx-building-house'></i>
+                       href="{% url 'dashboard:partners' %}">
+                        <i class='bx bx-building'></i>
                         Partners
                     </a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link {% if request.resolver_match.url_name == 'settings' %}active{% endif %}" 
-                       href="#">
-                        <i class='bx bx-cog'></i>
-                        Settings
+                {% endif %}
+
+                <!-- User Section -->
+                <li class="nav-item mt-4">
+                    <span class="d-block px-4 mb-2 text-white-50 small text-uppercase">Account</span>
+                    <a class="nav-link {% if request.resolver_match.url_name == 'profile' %}active{% endif %}" 
+                       href="{% url 'dashboard:profile' %}">
+                        <i class='bx bx-user-circle'></i>
+                        Profile
+                    </a>
+                    <a class="nav-link" href="{% url 'dashboard:logout' %}">
+                        <i class='bx bx-log-out'></i>
+                        Logout
                     </a>
                 </li>
             </ul>
@@ -232,7 +243,7 @@
     </nav>
 
     {% if messages %}
-    <div class="container-fluid">
+    <div class="container">
         {% for message in messages %}
         <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
             {{ message }}

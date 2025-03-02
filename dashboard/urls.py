@@ -49,4 +49,12 @@ urlpatterns = [
         name='password_reset_complete'),
 
 
+    
+    # Partner specific URLs
+    
+    path('partners/<int:partner_id>/farmers/', views.partner_farmers, name='partner_farmers'),
+    path('partners/<int:partner_id>/participants/', views.partner_participants, name='partner_participants'),
+    
+
+
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
