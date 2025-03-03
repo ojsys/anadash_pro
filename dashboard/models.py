@@ -329,27 +329,22 @@ class Farmer(models.Model):
 
 
 class FarmerData(models.Model):
-    partner = models.ForeignKey(Partner, on_delete=models.CASCADE, null=True)
+    index = models.CharField(max_length=10, null=True)
+    partner = models.CharField(max_length=100, null=True)
     firstname = models.CharField(max_length=255, null=True)
     lastname = models.CharField(max_length=255, null=True)
-    gender = models.CharField(max_length=10, choices=[
-        ('male', 'Male'),
-        ('female', 'Female')
-    ])
-    phone_number = models.CharField(max_length=20, null=True)
-    own_phone = models.BooleanField(default=False)
+    gender = models.CharField(max_length=10, null=True)
+    phone_no = models.CharField(max_length=20, null=True)
+    own_phone = models.BooleanField(default=False, null=True)
     crops = models.CharField(max_length=255, null=True)
-    crop_other = models.CharField(max_length=255, null=True)
+    crops_other = models.CharField(max_length=255, null=True)
     farm_area = models.DecimalField(max_digits=10, decimal_places=2, null=True)
-    area_unit = models.CharField(max_length=20, choices=[
-        ('hectare', 'Hectare'),
-        ('acre', 'Acre')
-    ])
-    cassava = models.BooleanField(default=False)
-    yam = models.BooleanField(default=False)
-    maize = models.BooleanField(default=False)
-    rice = models.BooleanField(default=False)
-    sorghum = models.BooleanField(default=False)
+    area_unit = models.CharField(max_length=20, null=True)
+    cassava = models.BooleanField(default=False, null=True)
+    yam = models.BooleanField(default=False, null=True)
+    maize = models.BooleanField(default=False, null=True)
+    rice = models.BooleanField(default=False, null=True)
+    sorghum = models.BooleanField(default=False, null=True)
     
     def __str__(self):
         return f"{self.firstname} - {self.lastname}: {self.gender}"
@@ -385,6 +380,83 @@ class ExtensionAgent(models.Model):
             'is_akilimo_certified': self.is_akilimo_certified,
             'number_of_farmers': self.number_of_farmers
         }
+
+
+class ExtensionAgentData(models.Model):
+    index = models.IntegerField(default=0)
+    firstname = models.CharField(max_length=255, blank=True, null=True)
+    lastname = models.CharField(max_length=255, blank=True, null=True)
+    gender = models.CharField(max_length=10, blank=True, null=True)
+    phone_no = models.CharField(max_length=20, blank=True, null=True)
+    phone_no2 = models.CharField(max_length=20, blank=True, null=True)
+    whatsapp = models.CharField(max_length=5, blank=True, null=True)
+    whatsapp2 = models.CharField(max_length=5, blank=True, null=True)
+    email = models.CharField(max_length=255, blank=True, null=True)
+    age = models.CharField(max_length=3, blank=True, null=True)
+    education = models.CharField(max_length=50, blank=True, null=True)
+    designation = models.CharField(max_length=255, blank=True, null=True)
+    type_org = models.CharField(max_length=50, blank=True, null=True)
+    org = models.CharField(max_length=255, blank=True, null=True)
+    org_other = models.CharField(max_length=255, blank=True, null=True)
+    country = models.CharField(max_length=100, blank=True, null=True)
+    area_level = models.CharField(max_length=10, blank=True, null=True)
+    hasc1 = models.CharField(max_length=255, blank=True, null=True)
+    hasc2 = models.CharField(max_length=255, blank=True, null=True)
+    no_farmers = models.CharField(max_length=10, blank=True, null=True)
+    date_added = models.CharField(max_length=20, blank=True, null=True)
+    certified = models.CharField(max_length=5, blank=True, null=True)
+    use_case = models.CharField(max_length=255, blank=True, null=True)
+    format = models.CharField(max_length=255, blank=True, null=True)
+    tools = models.CharField(max_length=255, blank=True, null=True)
+    otherAKILIMOexpertise = models.CharField(max_length=255, blank=True, null=True)
+    crops = models.CharField(max_length=255, blank=True, null=True)
+    crops_other = models.CharField(max_length=255, blank=True, null=True)
+    technologies = models.CharField(max_length=255, blank=True, null=True)
+    technologies_other = models.CharField(max_length=255, blank=True, null=True)
+    equipment = models.CharField(max_length=255, blank=True, null=True)
+    equipment_other = models.CharField(max_length=255, blank=True, null=True)
+    services = models.CharField(max_length=255, blank=True, null=True)
+    input_type = models.CharField(max_length=255, blank=True, null=True)
+    credit_types = models.CharField(max_length=255, blank=True, null=True)
+    market_type = models.CharField(max_length=255, blank=True, null=True)
+    paper = models.CharField(max_length=5, blank=True, null=True)
+    app = models.CharField(max_length=5, blank=True, null=True)
+    viamo = models.CharField(max_length=5, blank=True, null=True)
+    arifu = models.CharField(max_length=5, blank=True, null=True)
+    dashboard = models.CharField(max_length=5, blank=True, null=True)
+    worksheet = models.CharField(max_length=5, blank=True, null=True)
+    instructions = models.CharField(max_length=5, blank=True, null=True)
+    farmerfriendly_videos = models.CharField(max_length=5, blank=True, null=True)
+    short_videos = models.CharField(max_length=5, blank=True, null=True)
+    cartoon_guides = models.CharField(max_length=5, blank=True, null=True)
+    postcards = models.CharField(max_length=5, blank=True, null=True)
+    RYA_app = models.CharField(max_length=5, blank=True, null=True)
+    FR = models.CharField(max_length=5, blank=True, null=True)
+    IC = models.CharField(max_length=5, blank=True, null=True)
+    WM_PP = models.CharField(max_length=5, blank=True, null=True)
+    SP_HS = models.CharField(max_length=5, blank=True, null=True)
+    input = models.CharField(max_length=5, blank=True, null=True)
+    credit = models.CharField(max_length=5, blank=True, null=True)
+    market = models.CharField(max_length=5, blank=True, null=True)
+    fertilizer_supply = models.CharField(max_length=5, blank=True, null=True)
+    herbicide_supply = models.CharField(max_length=5, blank=True, null=True)
+    cuttings_supply = models.CharField(max_length=5, blank=True, null=True)
+    mechanization = models.CharField(max_length=5, blank=True, null=True)
+    indirect_financial = models.CharField(max_length=5, blank=True, null=True)
+    individual_credit = models.CharField(max_length=5, blank=True, null=True)
+    group_lending = models.CharField(max_length=5, blank=True, null=True)
+    intermediary_credit = models.CharField(max_length=5, blank=True, null=True)
+    market_information = models.CharField(max_length=5, blank=True, null=True)
+    market_access = models.CharField(max_length=5, blank=True, null=True)
+    crop_insurance = models.CharField(max_length=5, blank=True, null=True)
+
+    def __str__(self):
+        return f"{self.firstname} {self.lastname}"
+
+    class Meta:
+        verbose_name = "Extension Agent Data"
+        verbose_name_plural = "Extension Agent Data"
+
 
 class ScalingChecklist(models.Model):
     partner = models.ForeignKey(Partner, on_delete=models.CASCADE)

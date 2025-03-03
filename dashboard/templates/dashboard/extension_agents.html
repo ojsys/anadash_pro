@@ -1,47 +1,288 @@
 {% extends 'base.html' %}
+{% load humanize %}
 
-{% block title %}Extension Agents{% endblock %}
+{% block title %}Extension Agents Insights{% endblock %}
 
 {% block content %}
+<style>
+    .card {
+        transition: transform 0.2s;
+    }
+    .card:hover {
+        transform: translateY(-2px);
+    }
+    .chart-container {
+        position: relative;
+        height: 300px;
+        width: 100%;
+    }
+</style>
 <div class="container-fluid py-4">
+    <!-- Summary Cards Row -->
+    <div class="row g-4 mb-4">
+        <!-- Total Agents Card -->
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="rounded-circle bg-primary bg-opacity-10 p-3 me-3">
+                            <i class="bx bx-user-voice text-primary fs-4"></i>
+                        </div>
+                        <div>
+                            <h6 class="text-muted mb-1">Total Agents</h6>
+                            <h3 class="mb-0">{{ total_agents|intcomma }}</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Gender Distribution Card -->
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="rounded-circle bg-success bg-opacity-10 p-3 me-3">
+                            <i class="bx bx-group text-success fs-4"></i>
+                        </div>
+                        <h6 class="text-muted mb-0">Gender Distribution</h6>
+                    </div>
+                    <div class="d-flex justify-content-around">
+                        <div class="text-center">
+                            <h4 class="mb-0">{{ gender_distribution.male|intcomma }}</h4>
+                            <small class="text-muted">Male</small>
+                        </div>
+                        <div class="text-center">
+                            <h4 class="mb-0">{{ gender_distribution.female|intcomma }}</h4>
+                            <small class="text-muted">Female</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Farmers Reached Card -->
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="rounded-circle bg-info bg-opacity-10 p-3 me-3">
+                            <i class="bx bx-farm text-info fs-4"></i>
+                        </div>
+                        <div>
+                            <h6 class="text-muted mb-1">Farmers Reached</h6>
+                            <h3 class="mb-0">{{ total_farmers_reached|intcomma }}</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Technology Adoption Card -->
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="rounded-circle bg-warning bg-opacity-10 p-3 me-3">
+                            <i class="bx bx-devices text-warning fs-4"></i>
+                        </div>
+                        <h6 class="text-muted mb-0">Tech Adoption</h6>
+                    </div>
+                    <div class="row g-2">
+                        <div class="col-6 text-center">
+                            <h4 class="mb-0">{{ tech_adoption.app|intcomma }}</h4>
+                            <small class="text-muted">App Users</small>
+                        </div>
+                        <div class="col-6 text-center">
+                            <h4 class="mb-0">{{ tech_adoption.dashboard|intcomma }}</h4>
+                            <small class="text-muted">Dashboard Users</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+        <!-- Charts Row -->
+        <div class="row g-4 mb-4">
+            <!-- Education Levels Chart -->
+            <div class="col-md-6">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">Education Levels</h5>
+                        <div class="chart-container">
+                            <canvas id="educationChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+    
+            <!-- Expertise Areas Chart -->
+            <div class="col-md-6">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">Areas of Expertise</h5>
+                        <div class="chart-container">
+                            <canvas id="expertiseChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    <!-- Agents Table -->
     <div class="card border-0 shadow-sm">
         <div class="card-body">
-            <h4 class="card-title mb-4">Extension Agents</h4>
+            <h5 class="card-title mb-4">Extension Agents List</h5>
             <div class="table-responsive">
-                <table class="table table-hover">
-                    <thead>
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
                         <tr>
                             <th>Name</th>
                             <th>Gender</th>
+                            <th>Education</th>
+                            <th>Farmers Reached</th>
                             <th>Phone</th>
-                            <th>Certification</th>
-                            <th>Location</th>
+                            <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for agent in agents %}
                         <tr>
-                            <td>{{ agent.participant.full_name }}</td>
-                            <td>{{ agent.participant.gender }}</td>
-                            <td>{{ agent.participant.phone_number|default:"-" }}</td>
+                            <td>{{ agent.firstname }} {{ agent.lastname }}</td>
+                            <td>{{ agent.gender|title }}</td>
+                            <td>{{ agent.education|default:"-"|title }}</td>
+                            <td>{{ agent.no_farmers|default:"0" }}</td>
+                            <td>{{ agent.phone_no|default:"-" }}</td>
                             <td>
-                                {% if agent.is_akilimo_certified %}
-                                <span class="badge bg-success">Certified</span>
-                                {% else %}
-                                <span class="badge bg-warning">Not Certified</span>
-                                {% endif %}
+                                <button class="btn btn-sm btn-light">
+                                    <i class="bx bx-dots-vertical-rounded"></i>
+                                </button>
                             </td>
-                            <td>{{ agent.participant.location.city }}, {{ agent.participant.location.hasc1_name }}</td>
                         </tr>
                         {% empty %}
                         <tr>
-                            <td colspan="5" class="text-center">No extension agents registered yet.</td>
+                            <td colspan="6" class="text-center py-4">
+                                <div class="text-muted">
+                                    <i class="bx bx-user-x fs-1"></i>
+                                    <p class="mt-2">No extension agents found.</p>
+                                </div>
+                            </td>
                         </tr>
                         {% endfor %}
                     </tbody>
                 </table>
             </div>
+            <!-- Pagination -->
+            {% if agents.has_other_pages %}
+            <div class="d-flex justify-content-center mt-4">
+                <nav aria-label="Page navigation" class="pagination-sm">
+                    <ul class="pagination">
+                        {% if agents.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page=1" title="First">&laquo;</a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ agents.previous_page_number }}">&lsaquo;</a>
+                        </li>
+                        {% endif %}
+                        
+                        {% with ''|center:5 as range %}
+                        {% for _ in range %}
+                            {% with forloop.counter0|add:agents.number|add:-2 as num %}
+                                {% if num > 0 and num <= agents.paginator.num_pages %}
+                                <li class="page-item {% if agents.number == num %}active{% endif %}">
+                                    <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                                </li>
+                                {% endif %}
+                            {% endwith %}
+                        {% endfor %}
+                        {% endwith %}
+                        
+                        {% if agents.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ agents.next_page_number }}">&rsaquo;</a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ agents.paginator.num_pages }}" title="Last">&raquo;</a>
+                        </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            </div>
+            {% endif %}
         </div>
     </div>
 </div>
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+        // Education Levels Chart
+        const educationCtx = document.getElementById('educationChart').getContext('2d');
+    new Chart(educationCtx, {
+        type: 'pie',
+        data: {
+            labels: [{% for level in education_levels %}'{{ level.education|default:"Not Specified"|title }}'{% if not forloop.last %}, {% endif %}{% endfor %}],
+            datasets: [{
+                data: [{% for level in education_levels %}{{ level.count }}{% if not forloop.last %}, {% endif %}{% endfor %}],
+                backgroundColor: ['#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b']
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: true,
+                    position: 'right',
+                    labels: {
+                        usePointStyle: true,
+                        padding: 20,
+                        font: {
+                            size: 12
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    // Expertise Areas Chart
+    const expertiseCtx = document.getElementById('expertiseChart').getContext('2d');
+    new Chart(expertiseCtx, {
+        type: 'bar',
+        data: {
+            labels: ['Fertilizer', 'Herbicide', 'Mechanization', 'Credit', 'Market'],
+            datasets: [{
+                label: 'Number of Agents',
+                data: [
+                    {{ expertise_areas.fertilizer }},
+                    {{ expertise_areas.herbicide }},
+                    {{ expertise_areas.mechanization }},
+                    {{ expertise_areas.credit }},
+                    {{ expertise_areas.market }}
+                ],
+                backgroundColor: '#4e73df'
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+</script>
+{% endblock %}
+
+<style>
+    .card {
+        transition: transform 0.2s;
+    }
+    .card:hover {
+        transform: translateY(-2px);
+    }
+</style>
 {% endblock %}

@@ -1,41 +1,228 @@
 {% extends 'base.html' %}
+{% load humanize %}
 
 {% block title %}Farmers{% endblock %}
 
 {% block content %}
 <div class="container-fluid py-4">
+    <!-- Insights Cards Row -->
+    <div class="row g-4 mb-4">
+        <!-- Total Farmers Card -->
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="rounded-circle bg-success bg-opacity-10 p-3 me-3">
+                            <i class="bx bx-user text-success fs-4"></i>
+                        </div>
+                        <div>
+                            <h6 class="text-muted mb-1">Total Farmers</h6>
+                            <h3 class="mb-0">{{ total_farmers|intcomma }}</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Gender Distribution Card -->
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="rounded-circle bg-primary bg-opacity-10 p-3 me-3">
+                            <i class="bx bx-group text-primary fs-4"></i>
+                        </div>
+                        <h6 class="text-muted mb-0">Gender Distribution</h6>
+                    </div>
+                    <div class="d-flex justify-content-around">
+                        <div class="text-center">
+                            <h4 class="mb-0">{{ gender_distribution.male|intcomma }}</h4>
+                            <small class="text-muted">Male</small>
+                        </div>
+                        <div class="text-center">
+                            <h4 class="mb-0">{{ gender_distribution.female|intcomma }}</h4>
+                            <small class="text-muted">Female</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Phone Stats Card -->
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="rounded-circle bg-warning bg-opacity-10 p-3 me-3">
+                            <i class="bx bx-phone text-warning fs-4"></i>
+                        </div>
+                        <h6 class="text-muted mb-0">Phone Ownership</h6>
+                    </div>
+                    <div class="d-flex justify-content-around">
+                        <div class="text-center">
+                            <h4 class="mb-0">{{ phone_stats.with_phone|intcomma }}</h4>
+                            <small class="text-muted">With Phone</small>
+                        </div>
+                        <div class="text-center">
+                            <h4 class="mb-0">{{ phone_stats.without_phone|intcomma }}</h4>
+                            <small class="text-muted">Without Phone</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Crops Stats Card -->
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="rounded-circle bg-info bg-opacity-10 p-3 me-3">
+                            <i class="bx bx-leaf text-info fs-4"></i>
+                        </div>
+                        <h6 class="text-muted mb-0">Top Crops</h6>
+                    </div>
+                    <div class="small">
+                        {% for crop, count in crop_stats.items %}
+                        {% if count > 0 %}
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="text-capitalize">{{ crop }}</span>
+                            <span class="badge bg-info bg-opacity-10 text-info px-2">{{ count|intcomma }}</span>
+                        </div>
+                        {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Farmers Table Card -->
     <div class="card border-0 shadow-sm">
         <div class="card-body">
-            <h4 class="card-title mb-4">Registered Farmers</h4>
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h5 class="card-title mb-0">Our Farmers</h5>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-light btn-sm">
+                        <i class="bx bx-filter me-1"></i>Filter
+                    </button>
+                    <button class="btn btn-light btn-sm">
+                        <i class="bx bx-export me-1"></i>Export
+                    </button>
+                </div>
+            </div>
             <div class="table-responsive">
-                <table class="table table-hover">
-                    <thead>
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
                         <tr>
                             <th>Name</th>
                             <th>Gender</th>
                             <th>Phone</th>
+                            <th>Farm Area</th>
                             <th>Crops</th>
-                            <th>Location</th>
+                            <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for farmer in farmers %}
                         <tr>
-                            <td>{{ farmer.participant.full_name }}</td>
-                            <td>{{ farmer.participant.gender }}</td>
-                            <td>{{ farmer.participant.phone_number|default:"-" }}</td>
-                            <td>{{ farmer.crops|default:"-" }}</td>
-                            <td>{{ farmer.participant.location.city }}, {{ farmer.participant.location.hasc1_name }}</td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="avatar-sm bg-light rounded-circle me-2">
+                                        <span class="text-muted">{{ farmer.firstname|default:"-"|first }}{{ farmer.lastname|default:"-"|first }}</span>
+                                    </div>
+                                    {{ farmer.firstname|default:"-" }} {{ farmer.lastname|default:"-" }}
+                                </div>
+                            </td>
+                            <td><span class="badge bg-light text-dark">{{ farmer.gender|title }}</span></td>
+                            <td>{{ farmer.phone_no|default:"-" }}</td>
+                            <td>{{ farmer.farm_area }} {{ farmer.area_unit }}</td>
+                            <td>
+                                {% if farmer.cassava %}<span class="badge bg-success bg-opacity-10 text-success me-1">Cassava</span>{% endif %}
+                                {% if farmer.maize %}<span class="badge bg-primary bg-opacity-10 text-primary me-1">Maize</span>{% endif %}
+                                {% if farmer.rice %}<span class="badge bg-warning bg-opacity-10 text-warning me-1">Rice</span>{% endif %}
+                            </td>
+                            <td>
+                                <button class="btn btn-sm btn-light"><i class="bx bx-dots-vertical-rounded"></i></button>
+                            </td>
                         </tr>
                         {% empty %}
                         <tr>
-                            <td colspan="5" class="text-center">No farmers registered yet.</td>
+                            <td colspan="6" class="text-center py-4">
+                                <div class="text-muted">
+                                    <i class="bx bx-user-x fs-1"></i>
+                                    <p class="mt-2">No farmers registered yet.</p>
+                                </div>
+                            </td>
                         </tr>
                         {% endfor %}
                     </tbody>
                 </table>
             </div>
+
+            <!-- Pagination -->
+            {% if farmers.has_other_pages %}
+            <div class="d-flex justify-content-center mt-4">
+                <nav aria-label="Page navigation" class="pagination-sm">
+                    <ul class="pagination">
+                        {% if farmers.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page=1" title="First">&laquo;</a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ farmers.previous_page_number }}">&lsaquo;</a>
+                        </li>
+                        {% endif %}
+                        
+                        {% with ''|center:5 as range %}
+                        {% for _ in range %}
+                            {% with forloop.counter0|add:farmers.number|add:-2 as num %}
+                                {% if num > 0 and num <= farmers.paginator.num_pages %}
+                                <li class="page-item {% if farmers.number == num %}active{% endif %}">
+                                    <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                                </li>
+                                {% endif %}
+                            {% endwith %}
+                        {% endfor %}
+                        {% endwith %}
+                        
+                        {% if farmers.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ farmers.next_page_number }}">&rsaquo;</a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ farmers.paginator.num_pages }}" title="Last">&raquo;</a>
+                        </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            </div>
+            {% endif %}
         </div>
     </div>
 </div>
+
+<style>
+    .avatar-sm {
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+    }
+    .pagination {
+        margin-bottom: 0;
+    }
+    .pagination-sm .page-link {
+        padding: 0.25rem 0.5rem;
+        font-size: .875rem;
+    }
+    .card {
+        transition: transform 0.2s;
+    }
+    .card:hover {
+        transform: translateY(-2px);
+    }
+</style>
 {% endblock %}

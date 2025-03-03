@@ -1,63 +1,240 @@
 {% extends 'base.html' %}
+{% load dashboard_extras %}
+{% load humanize %}
 
 {% block title %}Events{% endblock %}
 
 {% block content %}
 <div class="container-fluid py-4">
+    <!-- Insights Cards Row -->
+    <div class="row g-4 mb-4">
+        <!-- Total Events Card -->
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="rounded-circle bg-success bg-opacity-10 p-3 me-3">
+                            <i class="bx bx-calendar text-success fs-4"></i>
+                        </div>
+                        <div>
+                            <h6 class="text-muted mb-1">Total Events</h6>
+                            <h3 class="mb-0">{{ total_events|intcomma }}</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Event Types Card -->
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="rounded-circle bg-primary bg-opacity-10 p-3 me-3">
+                            <i class="bx bx-category text-primary fs-4"></i>
+                        </div>
+                        <h6 class="text-muted mb-0">Event Types</h6>
+                    </div>
+                    <div class="d-flex justify-content-around">
+                        <div class="text-center">
+                            <h4 class="mb-0">{{ event_types.training|intcomma }}</h4>
+                            <small class="text-muted">Training</small>
+                        </div>
+                        <div class="text-center">
+                            <h4 class="mb-0">{{ event_types.sensitization|intcomma }}</h4>
+                            <small class="text-muted">Sensitization</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Format Stats Card -->
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="rounded-circle bg-warning bg-opacity-10 p-3 me-3">
+                            <i class="bx bx-devices text-warning fs-4"></i>
+                        </div>
+                        <h6 class="text-muted mb-0">Format Distribution</h6>
+                    </div>
+                    <div class="d-flex justify-content-around">
+                        <div class="text-center">
+                            <h4 class="mb-0">{{ format_stats.paper|intcomma }}</h4>
+                            <small class="text-muted">Paper</small>
+                        </div>
+                        <div class="text-center">
+                            <h4 class="mb-0">{{ format_stats.digital|intcomma }}</h4>
+                            <small class="text-muted">Digital</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Total Participants Card -->
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="rounded-circle bg-info bg-opacity-10 p-3 me-3">
+                            <i class="bx bx-group text-info fs-4"></i>
+                        </div>
+                        <div>
+                            <h6 class="text-muted mb-1">Total Participants</h6>
+                            <h3 class="mb-0">{{ total_participants|intcomma }}</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Events Table Card -->
     <div class="card border-0 shadow-sm">
         <div class="card-body">
             <div class="d-flex justify-content-between align-items-center mb-4">
-                <h4 class="card-title mb-0">Our Events</h4>
-                <button class="btn btn-primary">
-                    <i class='bx bx-plus me-2'></i>New Event
-                </button>
+                <h5 class="card-title mb-0">Our Events</h5>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-light btn-sm">
+                        <i class="bx bx-filter me-1"></i>Filter
+                    </button>
+                    <button class="btn btn-light btn-sm">
+                        <i class="bx bx-export me-1"></i>Export
+                    </button>
+                </div>
             </div>
             <div class="table-responsive">
-                <table class="table table-hover">
-                    <thead>
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
                         <tr>
-                            <th>Event Name</th>
+                            <th>Event Title</th>
                             <th>Date</th>
-                            <th>Location</th>
                             <th>Type</th>
+                            <th>Format</th>
+                            <th>Venue</th>
                             <th>Participants</th>
-                            <th>Status</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for event in events %}
                         <tr>
-                            <td>{{ event.name }}</td>
-                            <td>{{ event.date|date:"M d, Y" }}</td>
-                            <td>{{ event.location.city }}, {{ event.location.hasc1_name }}</td>
-                            <td>{{ event.event_type }}</td>
-                            <td>{{ event.participant_count }}</td>
                             <td>
-                                <span class="badge {% if event.status == 'completed' %}bg-success{% elif event.status == 'upcoming' %}bg-primary{% else %}bg-warning{% endif %}">
-                                    {{ event.status|title }}
+                                <div class="d-flex align-items-center">
+                                    <div class="avatar-sm bg-light rounded-circle me-2">
+                                        <i class="bx bx-calendar-event text-muted"></i>
+                                    </div>
+                                    {{ event.title }}
+                                </div>
+                            </td>
+                            <td>{{ event.event_date|date:"M d, Y" }}</td>
+                            <td>
+                                <span class="badge {% if event.event_type == 'training_event' %}bg-primary{% else %}bg-success{% endif %} bg-opacity-10 text-{% if event.event_type == 'training_event' %}primary{% else %}success{% endif %}">
+                                    {{ event.event_type|cut:"_"|title }}
                                 </span>
                             </td>
+                            <td><span class="badge bg-light text-dark">{{ event.format|title }}</span></td>
+                            <td>{{ event.venue|default:"-" }}</td>
                             <td>
-                                <div class="btn-group">
-                                    <a href="#" class="btn btn-sm btn-outline-primary">
-                                        <i class='bx bx-show'></i>
-                                    </a>
-                                    <a href="#" class="btn btn-sm btn-outline-secondary">
-                                        <i class='bx bx-edit'></i>
-                                    </a>
+                                <div class="d-flex align-items-center">
+                                    <div class="me-2">
+                                        <div class="d-flex align-items-center">
+                                            <span class="badge bg-primary rounded-pill me-2">
+                                                {{ participant_stats|get_item:event.id|get_item:'total_participants'|default:"0" }}
+                                            </span>
+                                            <small class="text-muted">
+                                                <i class="bx bx-male text-primary"></i> 
+                                                {{ participant_stats|get_item:event.id|get_item:'male_participants'|default:"0" }}
+                                                <i class="bx bx-female text-danger ms-2"></i> 
+                                                {{ participant_stats|get_item:event.id|get_item:'female_participants'|default:"0" }}
+                                            </small>
+                                        </div>
+                                    </div>
                                 </div>
+                            </td>
+                            <td>
+                                <button class="btn btn-sm btn-light"><i class="bx bx-dots-vertical-rounded"></i></button>
                             </td>
                         </tr>
                         {% empty %}
                         <tr>
-                            <td colspan="7" class="text-center">No events found.</td>
+                            <td colspan="7" class="text-center py-4">
+                                <div class="text-muted">
+                                    <i class="bx bx-calendar-x fs-1"></i>
+                                    <p class="mt-2">No events found.</p>
+                                </div>
+                            </td>
                         </tr>
                         {% endfor %}
                     </tbody>
                 </table>
             </div>
+
+            <!-- Pagination -->
+            {% if events.has_other_pages %}
+            <div class="d-flex justify-content-center mt-4">
+                <nav aria-label="Page navigation" class="pagination-sm">
+                    <ul class="pagination">
+                        {% if events.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page=1" title="First">&laquo;</a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ events.previous_page_number }}">&lsaquo;</a>
+                        </li>
+                        {% endif %}
+                        
+                        {% with ''|center:5 as range %}
+                        {% for _ in range %}
+                            {% with forloop.counter0|add:events.number|add:-2 as num %}
+                                {% if num > 0 and num <= events.paginator.num_pages %}
+                                <li class="page-item {% if events.number == num %}active{% endif %}">
+                                    <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                                </li>
+                                {% endif %}
+                            {% endwith %}
+                        {% endfor %}
+                        {% endwith %}
+                        
+                        {% if events.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ events.next_page_number }}">&rsaquo;</a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ events.paginator.num_pages }}" title="Last">&raquo;</a>
+                        </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            </div>
+            {% endif %}
         </div>
     </div>
 </div>
+
+<style>
+    .avatar-sm {
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+    }
+    .pagination {
+        margin-bottom: 0;
+    }
+    .pagination-sm .page-link {
+        padding: 0.25rem 0.5rem;
+        font-size: .875rem;
+    }
+    .card {
+        transition: transform 0.2s;
+    }
+    .card:hover {
+        transform: translateY(-2px);
+    }
+</style>
 {% endblock %}
