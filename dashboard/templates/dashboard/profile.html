@@ -4,6 +4,128 @@
 {% block title %}Profile{% endblock %}
 
 {% block content %}
+<style>
+    :root {
+        --primary-color: #035735;
+        --secondary-color: #475569;
+        --sidebar-width: 280px;
+    }
+    
+    body {
+        font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        background-color: #f8fafc;
+    }
+
+    .navbar {
+        margin-left: var(--sidebar-width);
+        box-shadow: 0 2px 4px rgba(0,0,0,.04);
+    }
+
+    .card {
+        border: none;
+        border-radius: 12px;
+        box-shadow: 0 4px 6px -1px rgba(0,0,0,.1);
+    }
+
+    .btn-primary {
+        background-color: var(--primary-color);
+        border: none;
+        padding: 0.6rem 1.2rem;
+        border-radius: 8px;
+    }
+
+    .btn-primary:hover {
+        background-color: #046d42;
+        transform: translateY(-1px);
+        transition: all 0.2s;
+    }
+
+    .sidebar {
+        position: fixed;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        z-index: 100;
+        width: var(--sidebar-width);
+        background-color: var(--primary-color);
+        transition: all 0.3s;
+    }
+
+    .sidebar-header {
+        padding: 1.5rem;
+        background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .sidebar-sticky {
+        height: calc(100vh - 150px);
+        padding: 1rem 0;
+        overflow-x: hidden;
+        overflow-y: auto;
+    }
+
+    .sidebar .nav-link {
+        color: rgba(255, 255, 255, 0.8);
+        padding: 0.8rem 1.5rem;
+        display: flex;
+        align-items: center;
+        transition: all 0.3s;
+    }
+
+    .sidebar .nav-link:hover {
+        color: #fff;
+        background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .sidebar .nav-link.active {
+        color: #fff;
+        background-color: rgba(255, 255, 255, 0.2);
+        border-left: 4px solid #fff;
+    }
+
+    .sidebar .nav-link i {
+        font-size: 1.4rem;
+        margin-right: 0.8rem;
+    }
+
+    .main-content {
+        margin-left: var(--sidebar-width);
+        padding: 2rem;
+        min-height: calc(100vh - 60px);
+    }
+
+    .sidebar-footer {
+        padding: 1rem 1.5rem;
+        position: absolute;
+        bottom: 0;
+        width: 100%;
+        background-color: rgba(0, 0, 0, 0.2);
+    }
+
+    .sidebar-sticky::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .sidebar-sticky::-webkit-scrollbar-track {
+        background: rgba(255, 255, 255, 0.1);
+    }
+
+    .sidebar-sticky::-webkit-scrollbar-thumb {
+        background-color: rgba(255, 255, 255, 0.2);
+        border-radius: 3px;
+    }
+
+    @media (max-width: 768px) {
+        .sidebar {
+            transform: translateX(-100%);
+        }
+        .navbar, .main-content {
+            margin-left: 0;
+        }
+        .sidebar.show {
+            transform: translateX(0);
+        }
+    }
+</style>
 <div class="container py-4">
     <div class="row justify-content-center">
         <div class="col-md-8">
