@@ -53,17 +53,11 @@ INSTALLED_APPS = [
 ]
 
 # ODK API Settings
-<<<<<<< HEAD
 ONA_API_TOKEN = config('ONA_API_TOKEN')
 ODK_API_BASE_URL = config('ODK_API_BASE_URL', default='https://api.ona.io/api/v1')
 ODK_API_TIMEOUT = config('ODK_API_TIMEOUT', default=30, cast=int)
 ODK_EVENT_FORM_ID = config('ODK_EVENT_FORM_ID')
-=======
-ONA_API_TOKEN = '81124a805f083a0dd592d691376aeed380a80619'
-ODK_API_BASE_URL = 'https://api.ona.io/api/v1'
-ODK_API_TIMEOUT = 30 # seconds
-ODK_EVENT_FORM_ID = '395361' 
->>>>>>> 84788627ce78f3da16ca57cf61180eb67855d59e
+
 
 
 # CORS settings
