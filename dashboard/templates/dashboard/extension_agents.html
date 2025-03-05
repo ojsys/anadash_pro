@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+<<<<<<< HEAD
 {% load humanize %}
 
 {% block title %}Extension Agents Insights{% endblock %}
@@ -144,11 +145,31 @@
                             <th>Farmers Reached</th>
                             <th>Phone</th>
                             <th>Actions</th>
+=======
+
+{% block title %}Extension Agents{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="card border-0 shadow-sm">
+        <div class="card-body">
+            <h4 class="card-title mb-4">Extension Agents</h4>
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Gender</th>
+                            <th>Phone</th>
+                            <th>Certification</th>
+                            <th>Location</th>
+>>>>>>> 84788627ce78f3da16ca57cf61180eb67855d59e
                         </tr>
                     </thead>
                     <tbody>
                         {% for agent in agents %}
                         <tr>
+<<<<<<< HEAD
                             <td>{{ agent.firstname }} {{ agent.lastname }}</td>
                             <td>{{ agent.gender|title }}</td>
                             <td>{{ agent.education|default:"-"|title }}</td>
@@ -168,11 +189,29 @@
                                     <p class="mt-2">No extension agents found.</p>
                                 </div>
                             </td>
+=======
+                            <td>{{ agent.participant.full_name }}</td>
+                            <td>{{ agent.participant.gender }}</td>
+                            <td>{{ agent.participant.phone_number|default:"-" }}</td>
+                            <td>
+                                {% if agent.is_akilimo_certified %}
+                                <span class="badge bg-success">Certified</span>
+                                {% else %}
+                                <span class="badge bg-warning">Not Certified</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ agent.participant.location.city }}, {{ agent.participant.location.hasc1_name }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" class="text-center">No extension agents registered yet.</td>
+>>>>>>> 84788627ce78f3da16ca57cf61180eb67855d59e
                         </tr>
                         {% endfor %}
                     </tbody>
                 </table>
             </div>
+<<<<<<< HEAD
             <!-- Pagination -->
             {% if agents.has_other_pages %}
             <div class="d-flex justify-content-center mt-4">
@@ -285,4 +324,9 @@
         transform: translateY(-2px);
     }
 </style>
+=======
+        </div>
+    </div>
+</div>
+>>>>>>> 84788627ce78f3da16ca57cf61180eb67855d59e
 {% endblock %}

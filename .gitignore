@@ -1,2 +1,29 @@
+<<<<<<< HEAD
 .env
 db.sqlite3
+=======
+.env
+>>>>>>> 84788627ce78f3da16ca57cf61180eb67855d59e
+# Database
+db.sqlite3
+*.sqlite3
+*.sqlite
+
+# Environment variables
+.env
+.env.*
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Django
+*.log
+local_settings.py
+media/
+
+# IDE
+.vscode/
+.idea/
+*.swp

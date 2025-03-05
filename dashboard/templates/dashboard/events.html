@@ -1,11 +1,15 @@
 {% extends 'base.html' %}
+<<<<<<< HEAD
 {% load dashboard_extras %}
 {% load humanize %}
+=======
+>>>>>>> 84788627ce78f3da16ca57cf61180eb67855d59e
 
 {% block title %}Events{% endblock %}
 
 {% block content %}
 <div class="container-fluid py-4">
+<<<<<<< HEAD
     <!-- Insights Cards Row -->
     <div class="row g-4 mb-4">
         <!-- Total Events Card -->
@@ -115,12 +119,33 @@
                             <th>Format</th>
                             <th>Venue</th>
                             <th>Participants</th>
+=======
+    <div class="card border-0 shadow-sm">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h4 class="card-title mb-0">Our Events</h4>
+                <button class="btn btn-primary">
+                    <i class='bx bx-plus me-2'></i>New Event
+                </button>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Event Name</th>
+                            <th>Date</th>
+                            <th>Location</th>
+                            <th>Type</th>
+                            <th>Participants</th>
+                            <th>Status</th>
+>>>>>>> 84788627ce78f3da16ca57cf61180eb67855d59e
                             <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for event in events %}
                         <tr>
+<<<<<<< HEAD
                             <td>
                                 <div class="d-flex align-items-center">
                                     <div class="avatar-sm bg-light rounded-circle me-2">
@@ -166,11 +191,38 @@
                                     <p class="mt-2">No events found.</p>
                                 </div>
                             </td>
+=======
+                            <td>{{ event.name }}</td>
+                            <td>{{ event.date|date:"M d, Y" }}</td>
+                            <td>{{ event.location.city }}, {{ event.location.hasc1_name }}</td>
+                            <td>{{ event.event_type }}</td>
+                            <td>{{ event.participant_count }}</td>
+                            <td>
+                                <span class="badge {% if event.status == 'completed' %}bg-success{% elif event.status == 'upcoming' %}bg-primary{% else %}bg-warning{% endif %}">
+                                    {{ event.status|title }}
+                                </span>
+                            </td>
+                            <td>
+                                <div class="btn-group">
+                                    <a href="#" class="btn btn-sm btn-outline-primary">
+                                        <i class='bx bx-show'></i>
+                                    </a>
+                                    <a href="#" class="btn btn-sm btn-outline-secondary">
+                                        <i class='bx bx-edit'></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7" class="text-center">No events found.</td>
+>>>>>>> 84788627ce78f3da16ca57cf61180eb67855d59e
                         </tr>
                         {% endfor %}
                     </tbody>
                 </table>
             </div>
+<<<<<<< HEAD
 
             <!-- Pagination -->
             {% if events.has_other_pages %}
@@ -237,4 +289,9 @@
         transform: translateY(-2px);
     }
 </style>
+=======
+        </div>
+    </div>
+</div>
+>>>>>>> 84788627ce78f3da16ca57cf61180eb67855d59e
 {% endblock %}

@@ -1,10 +1,14 @@
 {% extends 'base.html' %}
+<<<<<<< HEAD
 {% load humanize %}
+=======
+>>>>>>> 84788627ce78f3da16ca57cf61180eb67855d59e
 
 {% block title %}Farmers{% endblock %}
 
 {% block content %}
 <div class="container-fluid py-4">
+<<<<<<< HEAD
     <!-- Insights Cards Row -->
     <div class="row g-4 mb-4">
         <!-- Total Farmers Card -->
@@ -114,18 +118,32 @@
             <div class="table-responsive">
                 <table class="table table-hover align-middle">
                     <thead class="table-light">
+=======
+    <div class="card border-0 shadow-sm">
+        <div class="card-body">
+            <h4 class="card-title mb-4">Registered Farmers</h4>
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+>>>>>>> 84788627ce78f3da16ca57cf61180eb67855d59e
                         <tr>
                             <th>Name</th>
                             <th>Gender</th>
                             <th>Phone</th>
+<<<<<<< HEAD
                             <th>Farm Area</th>
                             <th>Crops</th>
                             <th>Actions</th>
+=======
+                            <th>Crops</th>
+                            <th>Location</th>
+>>>>>>> 84788627ce78f3da16ca57cf61180eb67855d59e
                         </tr>
                     </thead>
                     <tbody>
                         {% for farmer in farmers %}
                         <tr>
+<<<<<<< HEAD
                             <td>
                                 <div class="d-flex align-items-center">
                                     <div class="avatar-sm bg-light rounded-circle me-2">
@@ -154,11 +172,23 @@
                                     <p class="mt-2">No farmers registered yet.</p>
                                 </div>
                             </td>
+=======
+                            <td>{{ farmer.participant.full_name }}</td>
+                            <td>{{ farmer.participant.gender }}</td>
+                            <td>{{ farmer.participant.phone_number|default:"-" }}</td>
+                            <td>{{ farmer.crops|default:"-" }}</td>
+                            <td>{{ farmer.participant.location.city }}, {{ farmer.participant.location.hasc1_name }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" class="text-center">No farmers registered yet.</td>
+>>>>>>> 84788627ce78f3da16ca57cf61180eb67855d59e
                         </tr>
                         {% endfor %}
                     </tbody>
                 </table>
             </div>
+<<<<<<< HEAD
 
             <!-- Pagination -->
             {% if farmers.has_other_pages %}
@@ -225,4 +255,9 @@
         transform: translateY(-2px);
     }
 </style>
+=======
+        </div>
+    </div>
+</div>
+>>>>>>> 84788627ce78f3da16ca57cf61180eb67855d59e
 {% endblock %}

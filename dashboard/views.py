@@ -5,7 +5,10 @@ from django.urls import reverse_lazy
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
+<<<<<<< HEAD
 from django.core.paginator import Paginator
+=======
+>>>>>>> 84788627ce78f3da16ca57cf61180eb67855d59e
 from django.db.models import Count, Sum, Q
 from django.db.models.functions import TruncMonth
 from datetime import datetime, timedelta
@@ -13,7 +16,11 @@ from .integrations.sync_manager import DataSyncManager
 from django.contrib import messages
 from .forms import UserRegistrationForm, UserProfileForm
 from .models import (UserProfile, AkilimoEvent, Participant, ParticipantGroup, Farmer, ExtensionAgent, 
+<<<<<<< HEAD
                     ScalingChecklist, Location, DataSyncLog, DataSyncStatus, Partner, FarmerData, ExtensionAgentData)
+=======
+                    ScalingChecklist, Location, DataSyncLog, DataSyncStatus, Partner)
+>>>>>>> 84788627ce78f3da16ca57cf61180eb67855d59e
 
 
 
@@ -50,12 +57,17 @@ def trigger_sync(request):
 class CustomLoginView(LoginView):
     template_name = 'dashboard/login.html'
     redirect_authenticated_user = True
+<<<<<<< HEAD
     success_url = reverse_lazy('dashboard:dashboard')  # Changed to include namespace
+=======
+    success_url = reverse_lazy('dashboard')
+>>>>>>> 84788627ce78f3da16ca57cf61180eb67855d59e
 
     def form_invalid(self, form):
         messages.error(self.request, 'Invalid email or password.')
         return super().form_invalid(form)
 
+<<<<<<< HEAD
     def form_valid(self, form):
         # Clear any existing messages first
         storage = messages.get_messages(self.request)
@@ -77,6 +89,13 @@ def user_logout(request):
       # Changed to info level
     return redirect('dashboard:login')  # Changed to use direct URL name without namespace
 
+=======
+    def get_success_url(self):
+        if not self.request.user.profile.is_profile_complete:
+            return reverse_lazy('complete_profile')
+        return self.success_url
+
+>>>>>>> 84788627ce78f3da16ca57cf61180eb67855d59e
 
 
 ########## Register
@@ -138,6 +157,16 @@ def profile_view(request):
     return render(request, 'dashboard/profile.html', context)
 
 
+<<<<<<< HEAD
+=======
+@login_required
+def user_logout(request):
+    logout(request)
+    messages.success(request, 'You have been logged out successfully.')
+    return redirect('dashboard:login')
+
+
+>>>>>>> 84788627ce78f3da16ca57cf61180eb67855d59e
 
 def dashboard(request):
     # Event Statistics
@@ -237,6 +266,7 @@ def partner_participants(request, partner_id):
     # Add your view logic here
     return render(request, 'dashboard/participants.html', {'partner': partner})
 
+<<<<<<< HEAD
 @login_required
 def events_list(request):
     try:
@@ -454,4 +484,45 @@ def extension_agents_list(request):
             'agents': []
         }
     
+=======
+def events_list(request):
+    # Get events for the current user's partner
+    try:
+        user = request.user
+        partner = UserProfile.objects.get(user=user).partner
+        events = AkilimoEvent.objects.filter(partner=partner)
+    except (AttributeError, ObjectDoesNotExist):
+        events = []
+    
+    context = {
+        'events': events
+    }
+    return render(request, 'dashboard/events.html', context)
+
+def farmers_list(request):
+    # Get farmers for the current user's partner
+    try:
+        user = request.user
+        partner = UserProfile.objects.get(user=user).partner
+        farmers = Farmer.objects.filter(partner=partner)
+    except (AttributeError, ObjectDoesNotExist):
+        farmers = []
+    
+    context = {
+        'farmers': farmers
+    }
+    return render(request, 'dashboard/farmers.html', context)
+
+@login_required
+def extension_agents_list(request):
+    partner = request.user.profile.partner
+    agents = ExtensionAgent.objects.filter(
+        participant__partner=partner
+    ).select_related('participant')
+    
+    context = {
+        'agents': agents,
+        'partner': partner
+    }
+>>>>>>> 84788627ce78f3da16ca57cf61180eb67855d59e
     return render(request, 'dashboard/extension_agents.html', context)
