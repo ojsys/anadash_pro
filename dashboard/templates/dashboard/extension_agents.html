@@ -1,5 +1,4 @@
 {% extends 'base.html' %}
-<<<<<<< HEAD
 {% load humanize %}
 
 {% block title %}Extension Agents Insights{% endblock %}
@@ -18,6 +17,7 @@
         width: 100%;
     }
 </style>
+
 <div class="container-fluid py-4">
     <!-- Summary Cards Row -->
     <div class="row g-4 mb-4">
@@ -104,37 +104,47 @@
         </div>
     </div>
 
-        <!-- Charts Row -->
-        <div class="row g-4 mb-4">
-            <!-- Education Levels Chart -->
-            <div class="col-md-6">
-                <div class="card border-0 shadow-sm h-100">
-                    <div class="card-body">
-                        <h5 class="card-title">Education Levels</h5>
-                        <div class="chart-container">
-                            <canvas id="educationChart"></canvas>
-                        </div>
-                    </div>
-                </div>
-            </div>
-    
-            <!-- Expertise Areas Chart -->
-            <div class="col-md-6">
-                <div class="card border-0 shadow-sm h-100">
-                    <div class="card-body">
-                        <h5 class="card-title">Areas of Expertise</h5>
-                        <div class="chart-container">
-                            <canvas id="expertiseChart"></canvas>
-                        </div>
+    <!-- Charts Row -->
+    <div class="row g-4 mb-4">
+        <!-- Education Levels Chart -->
+        <div class="col-md-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Education Levels</h5>
+                    <div class="chart-container">
+                        <canvas id="educationChart"></canvas>
                     </div>
                 </div>
             </div>
         </div>
 
+        <!-- Expertise Areas Chart -->
+        <div class="col-md-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Areas of Expertise</h5>
+                    <div class="chart-container">
+                        <canvas id="expertiseChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Agents Table -->
     <div class="card border-0 shadow-sm">
         <div class="card-body">
-            <h5 class="card-title mb-4">Extension Agents List</h5>
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h5 class="card-title mb-0">Extension Agents List</h5>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-light btn-sm">
+                        <i class="bx bx-filter me-1"></i>Filter
+                    </button>
+                    <button class="btn btn-light btn-sm">
+                        <i class="bx bx-export me-1"></i>Export
+                    </button>
+                </div>
+            </div>
             <div class="table-responsive">
                 <table class="table table-hover align-middle">
                     <thead class="table-light">
@@ -144,37 +154,26 @@
                             <th>Education</th>
                             <th>Farmers Reached</th>
                             <th>Phone</th>
-                            <th>Actions</th>
-=======
-
-{% block title %}Extension Agents{% endblock %}
-
-{% block content %}
-<div class="container-fluid py-4">
-    <div class="card border-0 shadow-sm">
-        <div class="card-body">
-            <h4 class="card-title mb-4">Extension Agents</h4>
-            <div class="table-responsive">
-                <table class="table table-hover">
-                    <thead>
-                        <tr>
-                            <th>Name</th>
-                            <th>Gender</th>
-                            <th>Phone</th>
-                            <th>Certification</th>
                             <th>Location</th>
->>>>>>> 84788627ce78f3da16ca57cf61180eb67855d59e
+                            <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for agent in agents %}
                         <tr>
-<<<<<<< HEAD
-                            <td>{{ agent.firstname }} {{ agent.lastname }}</td>
-                            <td>{{ agent.gender|title }}</td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="avatar-sm bg-light rounded-circle me-2">
+                                        <span class="text-muted">{{ agent.firstname|default:"-"|first }}{{ agent.lastname|default:"-"|first }}</span>
+                                    </div>
+                                    {{ agent.firstname|default:"-" }} {{ agent.lastname|default:"-" }}
+                                </div>
+                            </td>
+                            <td><span class="badge bg-light text-dark">{{ agent.gender|title }}</span></td>
                             <td>{{ agent.education|default:"-"|title }}</td>
                             <td>{{ agent.no_farmers|default:"0" }}</td>
                             <td>{{ agent.phone_no|default:"-" }}</td>
+                            <td>{{ agent.participant.location.city }}, {{ agent.participant.location.hasc1_name }}</td>
                             <td>
                                 <button class="btn btn-sm btn-light">
                                     <i class="bx bx-dots-vertical-rounded"></i>
@@ -183,35 +182,18 @@
                         </tr>
                         {% empty %}
                         <tr>
-                            <td colspan="6" class="text-center py-4">
+                            <td colspan="7" class="text-center py-4">
                                 <div class="text-muted">
                                     <i class="bx bx-user-x fs-1"></i>
                                     <p class="mt-2">No extension agents found.</p>
                                 </div>
                             </td>
-=======
-                            <td>{{ agent.participant.full_name }}</td>
-                            <td>{{ agent.participant.gender }}</td>
-                            <td>{{ agent.participant.phone_number|default:"-" }}</td>
-                            <td>
-                                {% if agent.is_akilimo_certified %}
-                                <span class="badge bg-success">Certified</span>
-                                {% else %}
-                                <span class="badge bg-warning">Not Certified</span>
-                                {% endif %}
-                            </td>
-                            <td>{{ agent.participant.location.city }}, {{ agent.participant.location.hasc1_name }}</td>
-                        </tr>
-                        {% empty %}
-                        <tr>
-                            <td colspan="5" class="text-center">No extension agents registered yet.</td>
->>>>>>> 84788627ce78f3da16ca57cf61180eb67855d59e
                         </tr>
                         {% endfor %}
                     </tbody>
                 </table>
             </div>
-<<<<<<< HEAD
+
             <!-- Pagination -->
             {% if agents.has_other_pages %}
             <div class="d-flex justify-content-center mt-4">
@@ -253,12 +235,13 @@
         </div>
     </div>
 </div>
+{% endblock %}
 
 {% block extra_js %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-        // Education Levels Chart
-        const educationCtx = document.getElementById('educationChart').getContext('2d');
+    // Education Levels Chart
+    const educationCtx = document.getElementById('educationChart').getContext('2d');
     new Chart(educationCtx, {
         type: 'pie',
         data: {
@@ -306,6 +289,8 @@
             }]
         },
         options: {
+            responsive: true,
+            maintainAspectRatio: false,
             scales: {
                 y: {
                     beginAtZero: true
@@ -314,19 +299,4 @@
         }
     });
 </script>
-{% endblock %}
-
-<style>
-    .card {
-        transition: transform 0.2s;
-    }
-    .card:hover {
-        transform: translateY(-2px);
-    }
-</style>
-=======
-        </div>
-    </div>
-</div>
->>>>>>> 84788627ce78f3da16ca57cf61180eb67855d59e
 {% endblock %}

@@ -1,14 +1,11 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, logout
 from django.contrib.auth.views import LoginView
 from django.urls import reverse_lazy
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
-<<<<<<< HEAD
 from django.core.paginator import Paginator
-=======
->>>>>>> 84788627ce78f3da16ca57cf61180eb67855d59e
 from django.db.models import Count, Sum, Q
 from django.db.models.functions import TruncMonth
 from datetime import datetime, timedelta
@@ -16,12 +13,8 @@ from .integrations.sync_manager import DataSyncManager
 from django.contrib import messages
 from .forms import UserRegistrationForm, UserProfileForm
 from .models import (UserProfile, AkilimoEvent, Participant, ParticipantGroup, Farmer, ExtensionAgent, 
-<<<<<<< HEAD
                     ScalingChecklist, Location, DataSyncLog, DataSyncStatus, Partner, FarmerData, ExtensionAgentData)
-=======
-                    ScalingChecklist, Location, DataSyncLog, DataSyncStatus, Partner)
->>>>>>> 84788627ce78f3da16ca57cf61180eb67855d59e
-
+                    
 
 
 @login_required
@@ -57,17 +50,15 @@ def trigger_sync(request):
 class CustomLoginView(LoginView):
     template_name = 'dashboard/login.html'
     redirect_authenticated_user = True
-<<<<<<< HEAD
-    success_url = reverse_lazy('dashboard:dashboard')  # Changed to include namespace
-=======
+
     success_url = reverse_lazy('dashboard')
->>>>>>> 84788627ce78f3da16ca57cf61180eb67855d59e
+
 
     def form_invalid(self, form):
         messages.error(self.request, 'Invalid email or password.')
         return super().form_invalid(form)
 
-<<<<<<< HEAD
+
     def form_valid(self, form):
         # Clear any existing messages first
         storage = messages.get_messages(self.request)
@@ -89,13 +80,12 @@ def user_logout(request):
       # Changed to info level
     return redirect('dashboard:login')  # Changed to use direct URL name without namespace
 
-=======
+
     def get_success_url(self):
         if not self.request.user.profile.is_profile_complete:
             return reverse_lazy('complete_profile')
         return self.success_url
 
->>>>>>> 84788627ce78f3da16ca57cf61180eb67855d59e
 
 
 ########## Register
@@ -157,16 +147,13 @@ def profile_view(request):
     return render(request, 'dashboard/profile.html', context)
 
 
-<<<<<<< HEAD
-=======
+
 @login_required
 def user_logout(request):
     logout(request)
     messages.success(request, 'You have been logged out successfully.')
     return redirect('dashboard:login')
 
-
->>>>>>> 84788627ce78f3da16ca57cf61180eb67855d59e
 
 def dashboard(request):
     # Event Statistics
@@ -266,7 +253,7 @@ def partner_participants(request, partner_id):
     # Add your view logic here
     return render(request, 'dashboard/participants.html', {'partner': partner})
 
-<<<<<<< HEAD
+
 @login_required
 def events_list(request):
     try:
@@ -347,19 +334,17 @@ def events_list(request):
     
     return render(request, 'dashboard/events.html', context)
 
-
 def farmers_list(request):
     try:
         user = request.user
-        user_partner = UserProfile.objects.get(user=user).partner
-        if not user_partner:
+        user_profile = UserProfile.objects.get(user=user)
+        if not user_profile.partner:
             raise ObjectDoesNotExist("No partner found for user")
-            
-        words = user_partner.name.split()
-        partner_name = '_'.join(word.capitalize() if word.lower() != 'and' else 'and' 
-                              for word in words)
         
-        # Get farmers for current partner
+        # Get the partner name from user's profile
+        partner_name = user_profile.partner.name
+        
+        # Get farmers for current partner using name matching
         farmers = FarmerData.objects.filter(partner=partner_name).order_by('firstname', 'lastname')
         
         # Calculate insights with safe defaults
@@ -409,6 +394,67 @@ def farmers_list(request):
         }
     
     return render(request, 'dashboard/farmers.html', context)
+# def farmers_list(request):
+#     try:
+#         user = request.user
+#         user_partner = UserProfile.objects.get(user=user).partner
+#         if not user_partner:
+#             raise ObjectDoesNotExist("No partner found for user")
+            
+#         words = user_partner.name.split()
+#         partner_name = '_'.join(word.capitalize() if word.lower() != 'and' else 'and' 
+#                               for word in words)
+        
+#         # Get farmers for current partner
+#         farmers = FarmerData.objects.filter(partner=partner_name).order_by('firstname', 'lastname')
+        
+#         # Calculate insights with safe defaults
+#         total_farmers = farmers.count()
+#         gender_distribution = {
+#             'male': farmers.filter(gender__iexact='male').count(),
+#             'female': farmers.filter(gender__iexact='female').count()
+#         }
+        
+#         # Crop statistics with safe defaults
+#         crop_stats = {
+#             'cassava': farmers.filter(cassava=True).count(),
+#             'yam': farmers.filter(yam=True).count(),
+#             'maize': farmers.filter(maize=True).count(),
+#             'rice': farmers.filter(rice=True).count(),
+#             'sorghum': farmers.filter(sorghum=True).count()
+#         }
+        
+#         # Phone ownership with safe defaults
+#         phone_stats = {
+#             'with_phone': farmers.filter(phone_no__isnull=False).exclude(phone_no='').count(),
+#             'without_phone': farmers.filter(Q(phone_no__isnull=True) | Q(phone_no='')).count()
+#         }
+        
+#         # Pagination
+#         paginator = Paginator(farmers, 10)
+#         page_number = request.GET.get('page')
+#         page_obj = paginator.get_page(page_number)
+        
+#         context = {
+#             'farmers': page_obj or [],  # Provide empty list as fallback
+#             'total_farmers': total_farmers,
+#             'gender_distribution': gender_distribution,
+#             'crop_stats': crop_stats,
+#             'phone_stats': phone_stats,
+#         }
+        
+#     except (AttributeError, ObjectDoesNotExist) as e:
+#         # Log the error for debugging
+#         print(f"Error in farmers_list view: {str(e)}")
+#         context = {
+#             'farmers': [],
+#             'total_farmers': 0,
+#             'gender_distribution': {'male': 0, 'female': 0},
+#             'crop_stats': {'cassava': 0, 'yam': 0, 'maize': 0, 'rice': 0, 'sorghum': 0},
+#             'phone_stats': {'with_phone': 0, 'without_phone': 0},
+#         }
+    
+#     return render(request, 'dashboard/farmers.html', context)
 
 
 @login_required
@@ -484,45 +530,47 @@ def extension_agents_list(request):
             'agents': []
         }
     
-=======
-def events_list(request):
-    # Get events for the current user's partner
-    try:
-        user = request.user
-        partner = UserProfile.objects.get(user=user).partner
-        events = AkilimoEvent.objects.filter(partner=partner)
-    except (AttributeError, ObjectDoesNotExist):
-        events = []
-    
-    context = {
-        'events': events
-    }
-    return render(request, 'dashboard/events.html', context)
-
-def farmers_list(request):
-    # Get farmers for the current user's partner
-    try:
-        user = request.user
-        partner = UserProfile.objects.get(user=user).partner
-        farmers = Farmer.objects.filter(partner=partner)
-    except (AttributeError, ObjectDoesNotExist):
-        farmers = []
-    
-    context = {
-        'farmers': farmers
-    }
-    return render(request, 'dashboard/farmers.html', context)
-
-@login_required
-def extension_agents_list(request):
-    partner = request.user.profile.partner
-    agents = ExtensionAgent.objects.filter(
-        participant__partner=partner
-    ).select_related('participant')
-    
-    context = {
-        'agents': agents,
-        'partner': partner
-    }
->>>>>>> 84788627ce78f3da16ca57cf61180eb67855d59e
     return render(request, 'dashboard/extension_agents.html', context)
+
+# @login_required
+# def events_list(request):
+#     # Get events for the current user's partner
+#     try:
+#         user = request.user
+#         partner = UserProfile.objects.get(user=user).partner
+#         events = AkilimoEvent.objects.filter(partner=partner)
+#     except (AttributeError, ObjectDoesNotExist):
+#         events = []
+    
+#     context = {
+#         'events': events
+#     }
+#     return render(request, 'dashboard/events.html', context)
+
+# def farmers_list(request):
+#     # Get farmers for the current user's partner
+#     try:
+#         user = request.user
+#         partner = UserProfile.objects.get(user=user).partner
+#         farmers = Farmer.objects.filter(partner=partner)
+#     except (AttributeError, ObjectDoesNotExist):
+#         farmers = []
+    
+#     context = {
+#         'farmers': farmers
+#     }
+#     return render(request, 'dashboard/farmers.html', context)
+
+# @login_required
+# def extension_agents_list(request):
+#     partner = request.user.profile.partner
+#     agents = ExtensionAgent.objects.filter(
+#         participant__partner=partner
+#     ).select_related('participant')
+    
+#     context = {
+#         'agents': agents,
+#         'partner': partner
+#     }
+
+#     return render(request, 'dashboard/extension_agents.html', context)

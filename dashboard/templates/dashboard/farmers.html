@@ -1,14 +1,10 @@
 {% extends 'base.html' %}
-<<<<<<< HEAD
 {% load humanize %}
-=======
->>>>>>> 84788627ce78f3da16ca57cf61180eb67855d59e
 
 {% block title %}Farmers{% endblock %}
 
 {% block content %}
 <div class="container-fluid py-4">
-<<<<<<< HEAD
     <!-- Insights Cards Row -->
     <div class="row g-4 mb-4">
         <!-- Total Farmers Card -->
@@ -101,94 +97,70 @@
         </div>
     </div>
 
-    <!-- Farmers Table Card -->
-    <div class="card border-0 shadow-sm">
-        <div class="card-body">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h5 class="card-title mb-0">Our Farmers</h5>
-                <div class="d-flex gap-2">
-                    <button class="btn btn-light btn-sm">
-                        <i class="bx bx-filter me-1"></i>Filter
-                    </button>
-                    <button class="btn btn-light btn-sm">
-                        <i class="bx bx-export me-1"></i>Export
-                    </button>
+        <!-- Farmers Table Card -->
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h5 class="card-title mb-0">Our Farmers</h5>
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-light btn-sm">
+                            <i class="bx bx-filter me-1"></i>Filter
+                        </button>
+                        <button class="btn btn-light btn-sm">
+                            <i class="bx bx-export me-1"></i>Export
+                        </button>
+                    </div>
                 </div>
-            </div>
-            <div class="table-responsive">
-                <table class="table table-hover align-middle">
-                    <thead class="table-light">
-=======
-    <div class="card border-0 shadow-sm">
-        <div class="card-body">
-            <h4 class="card-title mb-4">Registered Farmers</h4>
-            <div class="table-responsive">
-                <table class="table table-hover">
-                    <thead>
->>>>>>> 84788627ce78f3da16ca57cf61180eb67855d59e
-                        <tr>
-                            <th>Name</th>
-                            <th>Gender</th>
-                            <th>Phone</th>
-<<<<<<< HEAD
-                            <th>Farm Area</th>
-                            <th>Crops</th>
-                            <th>Actions</th>
-=======
-                            <th>Crops</th>
-                            <th>Location</th>
->>>>>>> 84788627ce78f3da16ca57cf61180eb67855d59e
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for farmer in farmers %}
-                        <tr>
-<<<<<<< HEAD
-                            <td>
-                                <div class="d-flex align-items-center">
-                                    <div class="avatar-sm bg-light rounded-circle me-2">
-                                        <span class="text-muted">{{ farmer.firstname|default:"-"|first }}{{ farmer.lastname|default:"-"|first }}</span>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Name</th>
+                                <th>Gender</th>
+                                <th>Phone</th>
+                                <th>Farm Area</th>
+                                <th>Crops</th>
+                                <th>Location</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for farmer in farmers %}
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="avatar-sm bg-light rounded-circle me-2">
+                                            <span class="text-muted">{{ farmer.firstname|default:"-"|first }}{{ farmer.lastname|default:"-"|first }}</span>
+                                        </div>
+                                        {{ farmer.firstname|default:"-" }} {{ farmer.lastname|default:"-" }}
                                     </div>
-                                    {{ farmer.firstname|default:"-" }} {{ farmer.lastname|default:"-" }}
-                                </div>
-                            </td>
-                            <td><span class="badge bg-light text-dark">{{ farmer.gender|title }}</span></td>
-                            <td>{{ farmer.phone_no|default:"-" }}</td>
-                            <td>{{ farmer.farm_area }} {{ farmer.area_unit }}</td>
-                            <td>
-                                {% if farmer.cassava %}<span class="badge bg-success bg-opacity-10 text-success me-1">Cassava</span>{% endif %}
-                                {% if farmer.maize %}<span class="badge bg-primary bg-opacity-10 text-primary me-1">Maize</span>{% endif %}
-                                {% if farmer.rice %}<span class="badge bg-warning bg-opacity-10 text-warning me-1">Rice</span>{% endif %}
-                            </td>
-                            <td>
-                                <button class="btn btn-sm btn-light"><i class="bx bx-dots-vertical-rounded"></i></button>
-                            </td>
-                        </tr>
-                        {% empty %}
-                        <tr>
-                            <td colspan="6" class="text-center py-4">
-                                <div class="text-muted">
-                                    <i class="bx bx-user-x fs-1"></i>
-                                    <p class="mt-2">No farmers registered yet.</p>
-                                </div>
-                            </td>
-=======
-                            <td>{{ farmer.participant.full_name }}</td>
-                            <td>{{ farmer.participant.gender }}</td>
-                            <td>{{ farmer.participant.phone_number|default:"-" }}</td>
-                            <td>{{ farmer.crops|default:"-" }}</td>
-                            <td>{{ farmer.participant.location.city }}, {{ farmer.participant.location.hasc1_name }}</td>
-                        </tr>
-                        {% empty %}
-                        <tr>
-                            <td colspan="5" class="text-center">No farmers registered yet.</td>
->>>>>>> 84788627ce78f3da16ca57cf61180eb67855d59e
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-<<<<<<< HEAD
+                                </td>
+                                <td><span class="badge bg-light text-dark">{{ farmer.gender|title }}</span></td>
+                                <td>{{ farmer.phone_no|default:"-" }}</td>
+                                <td>{{ farmer.farm_area }} {{ farmer.area_unit }}</td>
+                                <td>
+                                    {% if farmer.cassava %}<span class="badge bg-success bg-opacity-10 text-success me-1">Cassava</span>{% endif %}
+                                    {% if farmer.maize %}<span class="badge bg-primary bg-opacity-10 text-primary me-1">Maize</span>{% endif %}
+                                    {% if farmer.rice %}<span class="badge bg-warning bg-opacity-10 text-warning me-1">Rice</span>{% endif %}
+                                </td>
+                                <td>{{ farmer.participant.location.city }}, {{ farmer.participant.location.hasc1_name }}</td>
+                                <td>
+                                    <button class="btn btn-sm btn-light"><i class="bx bx-dots-vertical-rounded"></i></button>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="7" class="text-center py-4">
+                                    <div class="text-muted">
+                                        <i class="bx bx-user-x fs-1"></i>
+                                        <p class="mt-2">No farmers registered yet.</p>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
 
             <!-- Pagination -->
             {% if farmers.has_other_pages %}
@@ -255,9 +227,8 @@
         transform: translateY(-2px);
     }
 </style>
-=======
+
         </div>
     </div>
 </div>
->>>>>>> 84788627ce78f3da16ca57cf61180eb67855d59e
 {% endblock %}

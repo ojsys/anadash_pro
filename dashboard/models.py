@@ -329,7 +329,7 @@ class Farmer(models.Model):
 
 
 class FarmerData(models.Model):
-<<<<<<< HEAD
+
     index = models.CharField(max_length=10, null=True)
     partner = models.CharField(max_length=100, null=True)
     firstname = models.CharField(max_length=255, null=True)
@@ -346,30 +346,8 @@ class FarmerData(models.Model):
     maize = models.BooleanField(default=False, null=True)
     rice = models.BooleanField(default=False, null=True)
     sorghum = models.BooleanField(default=False, null=True)
-=======
-    partner = models.ForeignKey(Partner, on_delete=models.CASCADE, null=True)
-    firstname = models.CharField(max_length=255, null=True)
-    lastname = models.CharField(max_length=255, null=True)
-    gender = models.CharField(max_length=10, choices=[
-        ('male', 'Male'),
-        ('female', 'Female')
-    ])
-    phone_number = models.CharField(max_length=20, null=True)
-    own_phone = models.BooleanField(default=False)
-    crops = models.CharField(max_length=255, null=True)
-    crop_other = models.CharField(max_length=255, null=True)
-    farm_area = models.DecimalField(max_digits=10, decimal_places=2, null=True)
-    area_unit = models.CharField(max_length=20, choices=[
-        ('hectare', 'Hectare'),
-        ('acre', 'Acre')
-    ])
-    cassava = models.BooleanField(default=False)
-    yam = models.BooleanField(default=False)
-    maize = models.BooleanField(default=False)
-    rice = models.BooleanField(default=False)
-    sorghum = models.BooleanField(default=False)
->>>>>>> 84788627ce78f3da16ca57cf61180eb67855d59e
-    
+
+            
     def __str__(self):
         return f"{self.firstname} - {self.lastname}: {self.gender}"
 
@@ -405,7 +383,7 @@ class ExtensionAgent(models.Model):
             'number_of_farmers': self.number_of_farmers
         }
 
-<<<<<<< HEAD
+
 
 class ExtensionAgentData(models.Model):
     index = models.IntegerField(default=0)
@@ -483,8 +461,7 @@ class ExtensionAgentData(models.Model):
         verbose_name_plural = "Extension Agent Data"
 
 
-=======
->>>>>>> 84788627ce78f3da16ca57cf61180eb67855d59e
+
 class ScalingChecklist(models.Model):
     partner = models.ForeignKey(Partner, on_delete=models.CASCADE)
     submission_date = models.DateTimeField()
