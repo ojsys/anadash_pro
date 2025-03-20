@@ -122,7 +122,12 @@ def complete_profile(request):
 @login_required
 def profile_view(request):
     user = request.user
-    profile = user.profile
+    
+    # Get or create profile
+    try:
+        profile = user.profile
+    except user.profile.RelatedObjectDoesNotExist:
+        profile = UserProfile.objects.create(user=user)
     
     if request.method == 'POST':
         if profile.is_profile_locked:

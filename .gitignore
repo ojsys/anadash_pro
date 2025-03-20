@@ -1,9 +1,3 @@
-<<<<<<< HEAD
-.env
-db.sqlite3
-=======
-.env
->>>>>>> 84788627ce78f3da16ca57cf61180eb67855d59e
 # Database
 db.sqlite3
 *.sqlite3

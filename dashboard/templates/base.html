@@ -177,10 +177,9 @@
                 {% if user.is_staff %}
                 <li class="nav-item mt-4">
                     <span class="d-block px-4 mb-2 text-white-50 small text-uppercase">Admin</span>
-                    <a class="nav-link {% if request.resolver_match.url_name == 'partners' %}active{% endif %}" 
-                       href="{% url 'dashboard:partners' %}">
+                    <a class="nav-link" href="/admin/">
                         <i class='bx bx-building'></i>
-                        Partners
+                        Admin Panel
                     </a>
                 </li>
                 {% endif %}
